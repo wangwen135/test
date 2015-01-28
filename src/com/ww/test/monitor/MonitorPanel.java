@@ -8,7 +8,7 @@ public class MonitorPanel extends JPanel {
 	 * Create the panel.
 	 */
 	public MonitorPanel() {
-		
+	    //hihi	
 	}
 
 }
