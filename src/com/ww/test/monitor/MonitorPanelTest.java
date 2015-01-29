@@ -21,6 +21,7 @@ public class MonitorPanelTest extends JFrame {
 
 	private List<Coordinate> list;
 	private MonitorPanel panel;
+	private JButton btnNewButton_1;
 
 	/**
 	 * Launch the application.
@@ -56,29 +57,40 @@ public class MonitorPanelTest extends JFrame {
 		JPanel panel_1 = new JPanel();
 		contentPane.add(panel_1, BorderLayout.SOUTH);
 
-		JButton btnNewButton = new JButton("New button");
+		JButton btnNewButton = new JButton("启  动");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				start();
 			}
 		});
 		panel_1.add(btnNewButton);
+
+		btnNewButton_1 = new JButton("停  止");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				run = false;
+			}
+		});
+		panel_1.add(btnNewButton_1);
 	}
 
+	private boolean run = true;
+
 	private void start() {
+		run = true;
 		Thread t = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				int rint = 100;
-				while (true) {
+				while (run) {
 					try {
 						Thread.sleep(rint + 900);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 					Random r = new Random();
-					rint = r.nextInt(100);
+					rint = r.nextInt(10);
 					System.out.println(rint);
 					list.add(new Coordinate(System.currentTimeMillis(), rint));
 					panel.drawImage();

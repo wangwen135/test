@@ -66,37 +66,59 @@ public class MonitorPanel extends JPanel {
 	private long minY;
 
 	/**
+	 * Y轴间距
+	 */
+	private long yAxisInterval;
+
+	private int yAxisLineCount;
+
+	/**
 	 * <pre>
 	 * 计算最大 、最小 Y轴值
 	 * </pre>
 	 */
 	private void calcYAxis() {
 		calcMaxAndMinYValue();
-		maxY = maxYValue;
-		minY = minYValue;
 
-		// long dValue = maxYValue - minYValue;
-		// // 上面差1/10
-		// long l = dValue / 10;
-		// maxY = maxYValue + l;
-		// // 下面差1/20
-		// l = l / 2;
-		// minY = minYValue - l;
+		long dValue = maxYValue - minYValue;
+		if (dValue == 0) {
+			maxY = maxYValue;
+			minY = minYValue;
+			return;
+		}
+
+		long interval = dValue / 10;// 显示10条线
+		if (interval == 0)
+			interval = 1;
+		long log = (long) Math.log10(interval);// 计算位数
+		long _tmp = (long) Math.pow(10, log);
+		yAxisInterval = Math.round((double) interval / _tmp) * _tmp;
+
+		long maxc = maxYValue / yAxisInterval;
+		maxY = (maxc + 1) * yAxisInterval;
+		long minc = minYValue / yAxisInterval;
+		minY = minc * yAxisInterval;
+		if (minY > minYValue) {
+			minY = minY - yAxisInterval;
+		}
+
+		yAxisLineCount = (int) ((maxY - minY) / yAxisInterval);
+
 	}
 
 	/**
 	 * Y轴的文本宽度
 	 */
-	private int YTextWidth = 80;
+	private int YTextWidth = 40;
 	/**
 	 * X轴的文本高度
 	 */
-	private int XTextHeight = 80;
+	private int XTextHeight = 40;
 
 	/**
 	 * 标题的高度
 	 */
-	private int titleHeight = 25;
+	private int titleHeight = 20;
 
 	/**
 	 * 图例的宽度
@@ -215,6 +237,10 @@ public class MonitorPanel extends JPanel {
 
 	private String title = "测试标题";
 
+	public void setGraphTitle(String title) {
+		this.title = title;
+	}
+
 	/**
 	 * <pre>
 	 * 将内容画在图片上
@@ -246,6 +272,8 @@ public class MonitorPanel extends JPanel {
 			return;
 		}
 
+		// 先计算title的高度
+
 		// 技术X 和 Y 的比例
 		calcXRatio();
 		calcYRatio();
@@ -253,22 +281,34 @@ public class MonitorPanel extends JPanel {
 		// 清空图片
 		big.setBackground(getBackground());
 		big.clearRect(0, 0, imgWidth, imgHeight);
+		
+		//获取字体
+//		Font font = big.getFont();
+//		FontMetrics fm = big.getFontMetrics(font);
+//		int ascent = fm.getAscent();
+//		int descent = fm.getDescent();
+//		int fHeight = fm.getHeight();
+
+		// int titleWidth = fm.stringWidth(title);
 		// 画标题
 		drawTitle();
-		// 画X坐标
 
-		// 画竖线
+		// 画内容区域 背景
+		drawGraphBackgound();
 
 		// 画Y坐标
 
-		// 画横线
+		drawYAxis();
+
+		// 画X坐标
+		//每隔间隔最少 40像素
+		int xLineCount = graphWidth/40;
+		
+		
+		// 画竖线
 
 		// 画图例
 
-		// 画内容区域
-		big.setColor(mfColor);
-		big.fill3DRect(YTextWidth, titleHeight, imgWidth - YTextWidth
-				- cutlineWidth, imgHeight - titleHeight - XTextHeight, false);
 		big.setColor(Color.RED);
 
 		int size = clist.size();
@@ -289,6 +329,45 @@ public class MonitorPanel extends JPanel {
 		repaint();
 	}
 
+	private void drawYAxis() {
+		Font font = big.getFont();
+		FontMetrics fm = big.getFontMetrics(font);
+		int descent = fm.getDescent();
+		// 先设置字体
+		big.setFont(font);
+		// 画最大值
+		String maxYStr = String.valueOf(maxY);
+		big.drawString(maxYStr, YTextWidth - fm.stringWidth(maxYStr) - 1,
+				titleHeight + descent);
+		// 画最小值
+		String minYStr = String.valueOf(minY);
+		big.drawString(minYStr, YTextWidth - fm.stringWidth(minYStr) - 1,
+				titleHeight + graphHeight);
+
+		// 每隔一定的像素画一条线
+
+		for (int i = 1; i < yAxisLineCount; i++) {
+			long _l = minY + (yAxisInterval * i);
+			String _yStr = String.valueOf(_l);
+			int _yPosition = getYPoint(_l);
+			// 数字
+			big.setColor(Color.BLACK);
+			big.drawString(_yStr, YTextWidth - fm.stringWidth(_yStr) - 1,
+					_yPosition + descent);
+
+			// 画横线
+			big.setColor(Color.YELLOW);
+			big.drawLine(YTextWidth, _yPosition, YTextWidth + graphWidth,
+					_yPosition);
+		}
+	}
+
+	private void drawGraphBackgound() {
+		big.setColor(mfColor);
+		big.fill3DRect(YTextWidth, titleHeight, imgWidth - YTextWidth
+				- cutlineWidth, imgHeight - titleHeight - XTextHeight, false);
+	}
+
 	private void drawTitle() {
 		if (title == null || title.isEmpty() || titleHeight < 1) {
 			return;
@@ -304,7 +383,7 @@ public class MonitorPanel extends JPanel {
 		int titleWidth = fm.stringWidth(title);
 
 		int titleX = (graphWidth - titleWidth) / 2 + YTextWidth;
-		big.drawString(title, titleX, fm.getHeight());
+		big.drawString(title, titleX, fm.getAscent());
 	}
 
 	@Override
