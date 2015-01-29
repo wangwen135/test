@@ -85,14 +85,17 @@ public class MonitorPanelTest extends JFrame {
 				int rint = 100;
 				while (run) {
 					try {
-						Thread.sleep(rint + 900);
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 					Random r = new Random();
-					rint = r.nextInt(10);
+					rint = r.nextInt(100);
 					System.out.println(rint);
-					list.add(new Coordinate(System.currentTimeMillis(), rint));
+					if(list.size()>50){
+						list.remove(0);
+					}
+					list.add(new Coordinate(System.currentTimeMillis(), rint +1000));
 					panel.drawImage();
 				}
 			}

@@ -6,6 +6,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -13,6 +15,9 @@ import javax.swing.JPanel;
 public class MonitorPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
+
+	private SimpleDateFormat dateF = new SimpleDateFormat("HH:mm");
+	private SimpleDateFormat dateF2 = new SimpleDateFormat("ss:SSS");
 
 	private List<Coordinate> clist;
 
@@ -70,6 +75,9 @@ public class MonitorPanel extends JPanel {
 	 */
 	private long yAxisInterval;
 
+	/**
+	 * Y轴线条数量
+	 */
 	private int yAxisLineCount;
 
 	/**
@@ -121,9 +129,9 @@ public class MonitorPanel extends JPanel {
 	private int titleHeight = 20;
 
 	/**
-	 * 图例的宽度
+	 * 显示当前值的文本宽度
 	 */
-	private int cutlineWidth = 0;
+	private int currentTextWidth = 50;
 
 	/**
 	 * Y轴上一个与像素点的比例
@@ -147,7 +155,7 @@ public class MonitorPanel extends JPanel {
 	 */
 	private void calcYRatio() {
 		calcYAxis();
-		// 获取曲线图的高度
+		// 计算曲线图的高度
 		graphHeight = imgHeight - titleHeight - XTextHeight;
 
 		if (graphHeight < 0) {
@@ -184,8 +192,8 @@ public class MonitorPanel extends JPanel {
 	 */
 	private void calcXRatio() {
 
-		// 获取曲线的宽度
-		graphWidth = imgWidth - YTextWidth - cutlineWidth;
+		// 计算曲线图的宽度
+		graphWidth = imgWidth - YTextWidth - currentTextWidth;
 		if (graphWidth < 0) {
 			xRatio = 0;
 			return;
@@ -195,7 +203,7 @@ public class MonitorPanel extends JPanel {
 		maxXValue = clist.get(clist.size() - 1).getxValue();
 		long xv = maxXValue - minXValue;
 
-		xRatio = (double) graphWidth / xv;// 得到比例
+		xRatio = (double) graphWidth / (double) xv;// 得到比例
 	}
 
 	/**
@@ -231,7 +239,12 @@ public class MonitorPanel extends JPanel {
 	 */
 	private BufferedImage bimage;
 	private Graphics2D big;
-	private Color mfColor = new Color(0, 100, 0);
+
+	private Color backgroundColor = new Color(0, 100, 0);
+	private Color lineColor = new Color(0, 0, 0);
+	private Color graphColor = new Color(250, 0, 0);
+	private Color fontColor = Color.BLACK;
+
 	private int imgWidth;
 	private int imgHeight;
 
@@ -275,19 +288,16 @@ public class MonitorPanel extends JPanel {
 		// 先计算title的高度
 
 		// 技术X 和 Y 的比例
-		calcXRatio();
 		calcYRatio();
+		calcXRatio();
+		System.out.println("Y轴的比例是：" + yRatio);
+		System.out.println("X轴的比例是：" + xRatio);
 
 		// 清空图片
 		big.setBackground(getBackground());
 		big.clearRect(0, 0, imgWidth, imgHeight);
-		
-		//获取字体
-//		Font font = big.getFont();
-//		FontMetrics fm = big.getFontMetrics(font);
-//		int ascent = fm.getAscent();
-//		int descent = fm.getDescent();
-//		int fHeight = fm.getHeight();
+
+		// 获取字体
 
 		// int titleWidth = fm.stringWidth(title);
 		// 画标题
@@ -297,19 +307,20 @@ public class MonitorPanel extends JPanel {
 		drawGraphBackgound();
 
 		// 画Y坐标
-
 		drawYAxis();
 
+		// Font font = big.getFont();
+		// FontMetrics fm = big.getFontMetrics(font);
+		// int ascent = fm.getAscent();
+		// int descent = fm.getDescent();
+		// int fHeight = fm.getHeight();
+
 		// 画X坐标
-		//每隔间隔最少 40像素
-		int xLineCount = graphWidth/40;
-		
-		
-		// 画竖线
+		// drawXAxis();
+		drawXAxis2();
 
-		// 画图例
-
-		big.setColor(Color.RED);
+		// 画曲线
+		big.setColor(graphColor);
 
 		int size = clist.size();
 		if (size < 2) {
@@ -325,10 +336,153 @@ public class MonitorPanel extends JPanel {
 
 		big.drawPolyline(xPoints, yPoints, size);
 
-		// 重绘
+		// 画一个当前值
+		Font font = big.getFont();
+		FontMetrics fm = big.getFontMetrics(font);
+		int descent = fm.getDescent();
+		big.setColor(fontColor);
+		int _yPoint = yPoints[size - 1];
+		int _xPoint = YTextWidth + graphWidth + 1;
+		long currentValue = clist.get(clist.size() - 1).getyValue();
+		String valueOf = String.valueOf(currentValue);
+		big.drawString(valueOf, _xPoint, _yPoint - descent);
+		big.drawLine(_xPoint, _yPoint, _xPoint + fm.stringWidth(valueOf),
+				_yPoint);
+
+		// 面板 重绘
 		repaint();
 	}
 
+	/**
+	 * X轴上默认的线与线之间的像素
+	 */
+	private int xAxisLineInterval = 80;
+
+	/**
+	 * <pre>
+	 * 第二种方式画
+	 * </pre>
+	 */
+	private void drawXAxis2() {
+
+		Font font = big.getFont();
+		FontMetrics fm = big.getFontMetrics(font);
+		int ascent = fm.getAscent();
+		// int descent = fm.getDescent();
+		int fHeight = fm.getHeight();
+
+		// 画X坐标
+		// 在X轴能显示几条线
+		int xLineCount = graphWidth / xAxisLineInterval;
+		if (clist.size() <= xLineCount) {
+			for (int i = 0; i < clist.size() - 1; i++) {
+				long _xValue = clist.get(i).getxValue();
+				int _xPoint = getXPoint(_xValue);
+				Date date = new Date(_xValue);
+				String dateStr = dateF.format(date);
+
+				big.setColor(lineColor);
+				big.drawLine(_xPoint, titleHeight, _xPoint, titleHeight
+						+ graphHeight);
+				big.setColor(fontColor);
+				big.drawString(dateStr, _xPoint, titleHeight + graphHeight
+						+ ascent);
+
+				String dateStr2 = dateF2.format(date);
+				big.drawString(dateStr2, _xPoint, titleHeight + graphHeight
+						+ ascent + fHeight);
+			}
+		} else {
+			double per = (double) graphWidth / xAxisLineInterval;
+
+			long xMinV = clist.get(0).getxValue();
+			long xMaxV = clist.get(clist.size() - 1).getxValue();
+
+			long xInterval = (long) ((xMaxV - xMinV) / per);
+
+			for (int i = 0; i <= xLineCount; i++) {
+				long _xValue = xMinV + (xInterval * i);
+				int _xPoint = YTextWidth + (xAxisLineInterval * i);
+				Date date = new Date(_xValue);
+				String dateStr = dateF.format(date);
+
+				big.setColor(lineColor);
+				big.drawLine(_xPoint, titleHeight, _xPoint, titleHeight
+						+ graphHeight);
+				big.setColor(fontColor);
+				big.drawString(dateStr, _xPoint, titleHeight + graphHeight
+						+ ascent);
+
+				String dateStr2 = dateF2.format(date);
+				big.drawString(dateStr2, _xPoint, titleHeight + graphHeight
+						+ ascent + fHeight);
+			}
+		}
+
+	}
+
+	/**
+	 * <pre>
+	 * 画X坐标轴
+	 * </pre>
+	 */
+	@SuppressWarnings("unused")
+	private void drawXAxis() {
+		Font font = big.getFont();
+		FontMetrics fm = big.getFontMetrics(font);
+		int ascent = fm.getAscent();
+		// int descent = fm.getDescent();
+		int fHeight = fm.getHeight();
+
+		// 画X坐标
+		// 每隔间隔像素
+		int xLineCount = graphWidth / xAxisLineInterval;
+		if (clist.size() <= xLineCount) {
+			for (int i = 0; i < clist.size() - 1; i++) {
+				long _xValue = clist.get(i).getxValue();
+				int _xPoint = getXPoint(_xValue);
+				Date date = new Date(_xValue);
+				String dateStr = dateF.format(date);
+				String dateStr2 = dateF2.format(date);
+
+				big.setColor(lineColor);
+				big.drawLine(_xPoint, titleHeight, _xPoint, titleHeight
+						+ graphHeight);
+				big.setColor(fontColor);
+				big.drawString(dateStr, _xPoint, titleHeight + graphHeight
+						+ ascent);
+				big.drawString(dateStr2, _xPoint, titleHeight + graphHeight
+						+ ascent + fHeight);
+			}
+		} else {
+			long xMinV = clist.get(0).getxValue();
+			long xMaxV = clist.get(clist.size() - 1).getxValue();
+			long xInterval = (xMaxV - xMinV) / xLineCount;
+
+			for (int i = 0; i < xLineCount; i++) {
+				long _xValue = xMinV + (xInterval * i);
+				int _xPoint = getXPoint(_xValue);
+				Date date = new Date(_xValue);
+				String dateStr = dateF.format(date);
+				String dateStr2 = dateF2.format(date);
+
+				big.setColor(lineColor);
+				big.drawLine(_xPoint, titleHeight, _xPoint, titleHeight
+						+ graphHeight);
+				big.setColor(fontColor);
+				big.drawString(dateStr, _xPoint, titleHeight + graphHeight
+						+ ascent);
+				big.drawString(dateStr2, _xPoint, titleHeight + graphHeight
+						+ ascent + fHeight);
+			}
+		}
+	}
+
+	/**
+	 * <pre>
+	 * 画Y轴
+	 * </pre>
+	 */
 	private void drawYAxis() {
 		Font font = big.getFont();
 		FontMetrics fm = big.getFontMetrics(font);
@@ -336,43 +490,63 @@ public class MonitorPanel extends JPanel {
 		// 先设置字体
 		big.setFont(font);
 		// 画最大值
-		String maxYStr = String.valueOf(maxY);
-		big.drawString(maxYStr, YTextWidth - fm.stringWidth(maxYStr) - 1,
-				titleHeight + descent);
-		// 画最小值
-		String minYStr = String.valueOf(minY);
-		big.drawString(minYStr, YTextWidth - fm.stringWidth(minYStr) - 1,
-				titleHeight + graphHeight);
+		// String maxYStr = String.valueOf(maxY);
+		// big.drawString(maxYStr, YTextWidth - fm.stringWidth(maxYStr) - 1,
+		// titleHeight + descent);
+		// // 画最小值
+		// String minYStr = String.valueOf(minY);
+		// big.drawString(minYStr, YTextWidth - fm.stringWidth(minYStr) - 1,
+		// titleHeight + graphHeight);
 
 		// 每隔一定的像素画一条线
 
-		for (int i = 1; i < yAxisLineCount; i++) {
+		for (int i = 0; i <= yAxisLineCount; i++) {
 			long _l = minY + (yAxisInterval * i);
 			String _yStr = String.valueOf(_l);
 			int _yPosition = getYPoint(_l);
 			// 数字
-			big.setColor(Color.BLACK);
+			big.setColor(fontColor);
 			big.drawString(_yStr, YTextWidth - fm.stringWidth(_yStr) - 1,
 					_yPosition + descent);
 
 			// 画横线
-			big.setColor(Color.YELLOW);
+			big.setColor(lineColor);
 			big.drawLine(YTextWidth, _yPosition, YTextWidth + graphWidth,
 					_yPosition);
 		}
 	}
 
+	/**
+	 * <pre>
+	 * 画背景
+	 * </pre>
+	 */
 	private void drawGraphBackgound() {
-		big.setColor(mfColor);
-		big.fill3DRect(YTextWidth, titleHeight, imgWidth - YTextWidth
-				- cutlineWidth, imgHeight - titleHeight - XTextHeight, false);
+		big.setColor(backgroundColor);
+		// big.fill3DRect(YTextWidth, titleHeight, imgWidth - YTextWidth
+		// - cutlineWidth, imgHeight - titleHeight - XTextHeight, false);
+
+		// 填充指定的矩形。该矩形左边缘和右边缘分别位于 x 和 x + width - 1。上边缘和下边缘分别位于 y 和 y + height -
+		// 1。得到的矩形覆盖 width 像素宽乘以 height 像素高的区域。使用图形上下文的当前颜色填充该矩形。
+		big.fillRect(YTextWidth, titleHeight, graphWidth, graphHeight);
+
+		big.setColor(lineColor);
+		// 绘制指定矩形的边框。矩形的左边缘和右边缘分别位于 x 和 x + width。上边缘和下边缘分别位于 y 和 y +
+		// height。使用图形上下文的当前颜色绘制该矩形。
+		big.drawRect(YTextWidth, titleHeight, graphWidth, graphHeight);
+
 	}
 
+	/**
+	 * <pre>
+	 * 画标题
+	 * </pre>
+	 */
 	private void drawTitle() {
 		if (title == null || title.isEmpty() || titleHeight < 1) {
 			return;
 		}
-		big.setColor(Color.BLACK);
+		big.setColor(fontColor);
 		// Font font = big.getFont();
 		Font font = new Font("宋体", Font.BOLD, 14);
 		big.setFont(font);
