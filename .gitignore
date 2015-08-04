@@ -1,6 +1,5 @@
-/bin/
-/*.log
-
-/*.log
-.*
-/logs-run.log.20150203
+/target/
+/logs/
+.project
+.classpath
+.settings/
