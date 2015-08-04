@@ -21,6 +21,7 @@ public class T1 {
     }
     
     public void test1(){
+        //
         log.debug("开始");
         System.out.println("hello world");
     }
