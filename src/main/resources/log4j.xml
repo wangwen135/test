@@ -2,6 +2,7 @@
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 
 <log4j:configuration>
+
 	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="conversionPattern"
@@ -43,6 +44,20 @@
 		</filter>
 	</appender>
 
+	<appender name="flume"
+		class="org.apache.flume.clients.log4jappender.Log4jAppender">
+		<param name="hostname" value="127.0.0.1" />
+		<param name="port" value="44444" />
+		<param name="unsafeMode" value="true" />
+
+		<!-- R.encoding=UTF-8 -->
+	</appender>
+
+	<logger name="LOG_FLUME" additivity="false">
+		<level value="DEBUG" />
+		<appender-ref ref="flume" />
+		<appender-ref ref="STDOUT" />
+	</logger>
 
 	<!-- level: FATAL,ERROR,WARN,INFO,DEBUG,TRACE -->
 	<root>
