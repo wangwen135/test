@@ -5,7 +5,8 @@
 
 	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="conversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %c %M(%F:%L) - %m%n" />
+			<param name="conversionPattern"
+				value="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %c %M(%F:%L) - %m%n" />
 		</layout>
 		<filter class="org.apache.log4j.varia.LevelRangeFilter">
 			<param name="LevelMin" value="DEBUG" />
@@ -18,7 +19,8 @@
 		<param name="file" value="logs/logs-run.log" />
 		<param name="datePattern" value="'.'yyyyMMdd" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="conversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %c %M(%F:%L) - %m%n" />
+			<param name="conversionPattern"
+				value="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %c %M(%F:%L) - %m%n" />
 		</layout>
 		<filter class="org.apache.log4j.varia.LevelRangeFilter">
 			<param name="LevelMin" value="INFO" />
@@ -32,7 +34,8 @@
 		<param name="maxBackupIndex" value="10" />
 		<param name="file" value="logs/logs-run.log" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="conversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %c %M(%F:%L) - %m%n" />
+			<param name="conversionPattern"
+				value="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %c %M(%F:%L) - %m%n" />
 		</layout>
 		<filter class="org.apache.log4j.varia.LevelRangeFilter">
 			<param name="LevelMin" value="INFO" />
@@ -41,16 +44,24 @@
 		</filter>
 	</appender>
 
-	<logger name="com.wwh" additivity="false">
+	<appender name="flume"
+		class="org.apache.flume.clients.log4jappender.Log4jAppender">
+		<param name="hostname" value="127.0.0.1" />
+		<param name="port" value="44444" />
+		<param name="unsafeMode" value="true" />
+
+		<!-- R.encoding=UTF-8 -->
+	</appender>
+
+	<logger name="LOG_FLUME" additivity="false">
 		<level value="DEBUG" />
-		<appender-ref ref="RollingFile" />
+		<appender-ref ref="flume" />
 		<appender-ref ref="STDOUT" />
 	</logger>
 
-
 	<!-- level: FATAL,ERROR,WARN,INFO,DEBUG,TRACE -->
 	<root>
-		<level value="ERROR" />
+		<level value="DEBUG" />
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="DailyFile" />
 	</root>
