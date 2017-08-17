@@ -35,6 +35,7 @@ public class CuratorLeaderTest {
 
         LeaderSelector selector = new LeaderSelector(client, "/wwh/test/curator", listener);
         selector.autoRequeue(); // not required, but this is behavior that you will probably expect
+        //autoRequeue()方法使放弃Leadership的Listener有机会重新获得Leadership，如果不设置的话放弃了的Listener是不会再变成Leader的。
         selector.start();
 
         System.out.println("主线程需要在这里等着");
