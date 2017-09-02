@@ -38,7 +38,9 @@ public class CuratorWatchTest {
 
         // setListenterTwo(client);
 
-        testPathChildrenCache(client);
+        // testPathChildrenCache(client);
+
+        testNodeCacheListenable(client);
 
         Thread.sleep(Long.MAX_VALUE);
     }
@@ -53,10 +55,16 @@ public class CuratorWatchTest {
         return client;
     }
 
+    /**
+     * 监听子节点的变化，只监听一层
+     * 
+     * @param client
+     * @throws Exception
+     */
     public static void testPathChildrenCache(CuratorFramework client) throws Exception {
-        final PathChildrenCache childrenCache = new PathChildrenCache(client, "/wwh/test/curator/two", true);
-        childrenCache.start(StartMode.POST_INITIALIZED_EVENT);
-        System.out.println("开始监听。。。。");
+        PathChildrenCache childrenCache = new PathChildrenCache(client, "/wwh/test/curator/two", true);
+        // boolean cacheData 如果为 true 则Event中可以获取到节点的数据内容
+
         childrenCache.getListenable().addListener(new PathChildrenCacheListener() {
             @Override
             public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
@@ -79,6 +87,9 @@ public class CuratorWatchTest {
                 }
             }
         });
+
+        childrenCache.start(StartMode.POST_INITIALIZED_EVENT);
+        System.out.println("开始监听。。。。");
     }
 
     /**
@@ -102,12 +113,7 @@ public class CuratorWatchTest {
     }
 
     /**
-     * 
-     * @描述：第二种监听器的添加方式: 也是一次性的监听操作,使用后就无法在继续监听了
-     * @return void
-     * @exception @createTime：2016年5月18日
-     * @author: songqinghu
-     * @throws Exception
+     * 监听 错误 和 background 事件 Receives notifications about errors and background events
      */
     private static void setListenterTwo(CuratorFramework client) throws Exception {
 
@@ -121,6 +127,8 @@ public class CuratorWatchTest {
         };
         client.getCuratorListenable().addListener(listener, pool);
 
+        Thread.sleep(1000);
+
         client.getData().inBackground().forPath("/wwh/test/curator/two");
         client.getData().inBackground().forPath("/wwh/test/curator");
         client.getData().inBackground().forPath("/wwh/test/curator/two");
@@ -128,50 +136,11 @@ public class CuratorWatchTest {
 
     }
 
-    /**
-     * 
-     * @描述：第三种监听器的添加方式: Cache 的三种实现 实践 Path Cache：监视一个路径下1）孩子结点的创建、2）删除，3）以及结点数据的更新。 产生的事件会传递给注册的PathChildrenCacheListener。 Node
-     *                  Cache：监视一个结点的创建、更新、删除，并将结点的数据缓存在本地。 Tree Cache：Path Cache和Node Cache的“合体”，监视路径下的创建、更新、删除事件，并缓存路径下所有孩子结点的数据。
-     * @return void
-     * @exception @createTime：2016年5月18日
-     * @author: songqinghu
-     * @throws Exception
-     */
-    // 1.path Cache 连接 路径 是否获取数据
-    // 能监听所有的字节点 且是无限监听的模式 但是 指定目录下节点的子节点不再监听
-    private static void setListenterThreeOne(CuratorFramework client) throws Exception {
-        PathChildrenCache childrenCache = new PathChildrenCache(client, "/test", true);
-        PathChildrenCacheListener childrenCacheListener = new PathChildrenCacheListener() {
-            @Override
-            public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-                System.out.println("开始进行事件分析:-----");
-                ChildData data = event.getData();
-                switch (event.getType()) {
-                case CHILD_ADDED:
-                    System.out.println("CHILD_ADDED : " + data.getPath() + "  数据:" + data.getData());
-                    break;
-                case CHILD_REMOVED:
-                    System.out.println("CHILD_REMOVED : " + data.getPath() + "  数据:" + data.getData());
-                    break;
-                case CHILD_UPDATED:
-                    System.out.println("CHILD_UPDATED : " + data.getPath() + "  数据:" + data.getData());
-                    break;
-                default:
-                    break;
-                }
-            }
-        };
-        childrenCache.getListenable().addListener(childrenCacheListener);
-        System.out.println("Register zk watcher successfully!");
-        childrenCache.start(StartMode.POST_INITIALIZED_EVENT);
-    }
-
     // 2.Node Cache 监控本节点的变化情况 连接 目录 是否压缩
     // 监听本节点的变化 节点可以进行修改操作 删除节点后会再次创建(空节点)
-    private static void setListenterThreeTwo(CuratorFramework client) throws Exception {
-        ExecutorService pool = Executors.newCachedThreadPool();
+    public static void testNodeCacheListenable(CuratorFramework client) throws Exception {
         // 设置节点的cache
-        final NodeCache nodeCache = new NodeCache(client, "/test", false);
+        final NodeCache nodeCache = new NodeCache(client, "/wwh/test/curator/two/wwh", false);
         nodeCache.getListenable().addListener(new NodeCacheListener() {
             @Override
             public void nodeChanged() throws Exception {
