@@ -12,6 +12,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -36,16 +37,31 @@ public class ApachExample {
     public static void main(String[] args) throws Exception {
 
         
+      //我们可以使用一个Builder来设置UA字段，然后再创建HttpClient对象
+        HttpClientBuilder builder = HttpClients.custom();
+        //对照UA字串的标准格式理解一下每部分的意思
+//        builder.setUserAgent("Mozilla/5.0(Windows;U;Windows NT 5.1;en-US;rv:0.9.4)");       
+        builder.setUserAgent("Mozilla/5.0 (Windows NT 6.1; rv:45.0) Gecko/20100101 Firefox/45.0");
+        
+        
+        final CloseableHttpClient httpclient = builder.build();
 
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+        //CloseableHttpClient httpclient = HttpClients.createDefault();
 
+        
         try {
-            HttpGet httpGet = new HttpGet("http://httpbin.org/get");
+//            HttpGet httpGet = new HttpGet("http://zqktlwi4fecvo6ri.onion/");
+            HttpGet httpGet = new HttpGet("http://rfyqcextgeq4panu.onion/");
+            
+            
+
+            
          // 设置一个代理测试一下
-            HttpHost proxy = new HttpHost("127.0.0.1", 9999, "http");
+            HttpHost proxy = new HttpHost("127.0.0.1", 8118, "http");
             RequestConfig config = RequestConfig.custom()
                     .setProxy(proxy)
                     .build();
+            
             httpGet.setConfig(config);
             
             //设置http 请求头
@@ -77,6 +93,11 @@ public class ApachExample {
                 response1.close();
             }
 
+            if(1==1) {
+                return;
+            }
+            
+            
             HttpPost httpPost = new HttpPost("http://httpbin.org/post");
             List<NameValuePair> nvps = new ArrayList<NameValuePair>();
             nvps.add(new BasicNameValuePair("username", "vip"));

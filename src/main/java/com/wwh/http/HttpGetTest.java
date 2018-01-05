@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -36,9 +37,15 @@ public class HttpGetTest {
 
     public static void main(String[] args) throws ClientProtocolException, IOException {
 
+        Properties prop = System.getProperties();
+
+        // socks代理服务器的地址与端口
+        prop.setProperty("socksProxyHost", "118.193.225.166");
+        prop.setProperty("socksProxyPort", "9150");
+
         CloseableHttpClient httpclient = HttpClients.createSystem();
-        
-        HttpGet httpget = new HttpGet("http://www.baidu.com");
+
+        HttpGet httpget = new HttpGet("http://grams7enufi7jmdl.onion/");
         System.out.println("executing request" + httpget.getRequestLine());
         CloseableHttpResponse response = httpclient.execute(httpget);
         try {

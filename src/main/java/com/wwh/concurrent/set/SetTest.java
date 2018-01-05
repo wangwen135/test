@@ -6,8 +6,15 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class SetTest {
+    
+    public static void main(String[] args) {
+        Set<Integer> s1 = new HashSet<>();
+        s1.add(200);
+        s1.add(201);
+        System.out.println(s1.contains(200));
+    }
 
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 
 		Set<Long> set = Collections.synchronizedSet(new HashSet<Long>());
 
