@@ -12,7 +12,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,23 +26,30 @@ import java.util.List;
 public class StringTest {
 
     public static void main(String[] args) {
+        String url = "http://www.example.com/index.html#print";
+        int i = url.indexOf('#');
+        if (i > 0) {
+            System.out.println(url.substring(0, i));
+        }
+    }
+
+    public static void main12(String[] args) {
         String url = "http://de­­­e­­pdot3­­­5wvmeyd5.onion";
         System.out.println(url);
-        
+
         char c1 = 173;
-        
+
         String sss = "­";
-        
+
         String spc = String.valueOf(c1);
-        
+
         String url2 = url.replace(spc, "");
 
         System.out.println(url2);
-        
+
         char c = '­';
-        System.out.println(((int)c));
-        
-        
+        System.out.println(((int) c));
+
     }
 
     public static void main11(String[] args) {
