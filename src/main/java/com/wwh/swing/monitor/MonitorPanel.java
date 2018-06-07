@@ -1,4 +1,4 @@
-package com.wwh.test.monitor;
+package com.wwh.swing.monitor;
 
 import java.awt.Color;
 import java.awt.Font;

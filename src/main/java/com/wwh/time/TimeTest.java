@@ -4,8 +4,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class TimeTest {
+
+    public static void main3(String[] args) {
+        long ttl = 1500;
+        long l2 = TimeUnit.MILLISECONDS.toSeconds(ttl);
+        System.out.println(l2);
+    }
 
     public static void main(String[] args) {
 
@@ -21,14 +28,13 @@ public class TimeTest {
             System.out.println(time / 1000);
 
             System.out.println(time / 3000);
-            
+
             try {
                 Thread.sleep(r.nextInt(1000));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            
         }
     }
 

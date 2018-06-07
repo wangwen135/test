@@ -1,4 +1,4 @@
-package com.wwh.test.monitor;
+package com.wwh.swing.monitor;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;

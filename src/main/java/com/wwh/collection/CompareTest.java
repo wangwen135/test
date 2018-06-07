@@ -1,4 +1,4 @@
-package com.wwh.test.compare;
+package com.wwh.collection;
 
 import java.util.Comparator;
 import java.util.TreeSet;

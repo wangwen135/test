@@ -1,4 +1,4 @@
-package com.wwh.test.atomicTest;
+package com.wwh.concurrent.atomic;
 
 import java.util.ArrayList;
 import java.util.List;

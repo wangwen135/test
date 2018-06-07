@@ -26,8 +26,14 @@ import java.util.List;
 public class StringTest {
 
     public static void main(String[] args) {
+        
+        
+    }
+
+    public static void main13(String[] args) {
         String url = "http://www.example.com/index.html#print";
-        int i = url.indexOf('#');
+        int i = url.indexOf('h');
+        System.out.println(i);
         if (i > 0) {
             System.out.println(url.substring(0, i));
         }
@@ -160,8 +166,8 @@ public class StringTest {
     }
 
     public static void main3(String[] args) throws UnsupportedEncodingException {
-        byte[] b = new byte[] { 116, 101, 115, 116, 67, 97, 99, 104, 101, 58, 84, 101, 115, 116, 83, 101, 114, 118, 105, 99, 101, 73, 109, 112, 108, 46, 100,
-                101, 108, 101, 116, 101, 66, 121, 73, 100, 40, 54, 41 };
+        byte[] b = new byte[] { 116, 101, 115, 116, 67, 97, 99, 104, 101, 58, 84, 101, 115, 116, 83, 101, 114, 118, 105,
+                99, 101, 73, 109, 112, 108, 46, 100, 101, 108, 101, 116, 101, 66, 121, 73, 100, 40, 54, 41 };
         // byte[] b = new byte[]{116, 101, 115, 116, 67, 97, 99, 104, 101, 58};
 
         Charset charset = Charset.forName("UTF8");

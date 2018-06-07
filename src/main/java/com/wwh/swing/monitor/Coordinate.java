@@ -1,4 +1,4 @@
-package com.wwh.test.monitor;
+package com.wwh.swing.monitor;
 
 public class Coordinate {
 

@@ -1,4 +1,4 @@
-package com.wwh.test.log;
+package com.wwh.log;
 
 import java.io.IOException;
 
