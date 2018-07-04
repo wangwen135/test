@@ -38,6 +38,10 @@ public class RedisTest {
             jedis.set("name2", "张三");
 
             System.out.println(jedis.get("name2"));
+            
+            jedis.expire("name2", 1);
+            jedis.expire("name222", 1);
+            jedis.expire("name23333", 1);
 
         } catch (Exception e) {
             e.printStackTrace();
