@@ -1,7 +1,6 @@
 package com.wwh.match;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 
 /**
@@ -32,9 +31,10 @@ import java.math.RoundingMode;
 public class BigDecimalTest {
 
 	public static void main(String[] args) {
-		// divide();
+		divide();
 
-		construction();
+		multiply();
+		// construction();
 
 	}
 
@@ -96,9 +96,10 @@ public class BigDecimalTest {
 		b1 = new BigDecimal("32.8323");
 		b2 = new BigDecimal("3");
 		b3 = b1.multiply(b2);
-		System.out.println(b3);
-		BigDecimal b4 = b1.multiply(b2, new MathContext(2, RoundingMode.HALF_UP));
-		System.out.println(b4);
+		System.out.println(b3.setScale(3, RoundingMode.HALF_UP));
+
+		BigDecimal b4 = b1.multiply(b2);
+		System.out.println(b4.setScale(3, RoundingMode.HALF_UP));
 	}
 
 	/**
@@ -107,11 +108,10 @@ public class BigDecimalTest {
 	public static void divide() {
 		BigDecimal b1 = new BigDecimal("32.8");
 		BigDecimal b2 = new BigDecimal("3");
-		MathContext mc = new MathContext(3, RoundingMode.HALF_UP);
-		BigDecimal b3 = b1.divide(b2, mc);
+		BigDecimal b3 = b1.divide(b2, 3, RoundingMode.HALF_UP);
 		System.out.println(b3);
 
 		BigDecimal b4 = new BigDecimal("10");
-		System.out.println(b4.divide(b2, mc));
+		System.out.println(b4.divide(b2, 3, RoundingMode.HALF_UP));
 	}
 }
