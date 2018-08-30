@@ -2,9 +2,20 @@ package com.wwh.test.lang;
 
 public class FloatTest {
 	public static void main(String[] args) {
-		//
-		subtraction();
 
+		lossAccuracy();
+
+		//
+		// subtraction();
+
+	}
+
+	/**
+	 * Float 大于一定的值会丢失精度
+	 */
+	public static void lossAccuracy() {
+		Float ff = Float.valueOf("1900000.3");
+		System.out.println(ff);
 	}
 
 	/**
