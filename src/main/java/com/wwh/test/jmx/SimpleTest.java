@@ -23,7 +23,8 @@ import com.wwh.test.jmx.mbean.WwhBean;
  * 要远程连接，在启动参数中加上:
  * -Dcom.sun.management.jmxremote.port=8888 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
  * 在jconsole中输入IP和上面定义的端口 8888 连接
- *  
+ * 
+ * java默认自带了JMX RMI的连接器。只需要在启动java程序的时候带上运行参数，就可以开启Agent的RMI协议的连接器。
  * </pre>
  *
  * @author wangwh
