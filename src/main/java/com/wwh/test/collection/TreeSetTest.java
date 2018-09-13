@@ -14,7 +14,23 @@ import java.util.TreeSet;
  */
 public class TreeSetTest {
 
-    public static void main(String[] args) {
+	public static void main(String[] args) {
+		TreeSet< Integer> tset = new TreeSet<>(new Comparator<Integer>() {
+			@Override
+			public int compare(Integer o1, Integer o2) {
+				return o2.compareTo(o1);
+			}
+		});
+		tset.add(5);
+		tset.add(15);
+		tset.add(0);
+		tset.add(7);
+		tset.add(3);
+		
+		System.out.println(tset);
+	}
+	
+    public static void main1(String[] args) {
         TreeSet<obj> tset = new TreeSet<obj>(new Comparator<obj>() {
             @Override
             public int compare(obj o1, obj o2) {

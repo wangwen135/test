@@ -31,6 +31,41 @@ import java.math.RoundingMode;
 public class BigDecimalTest {
 
 	public static void main(String[] args) {
+		Float ff = Float.valueOf("1900000.3");
+		System.out.println(ff);
+		
+		BigDecimal totalAmount = new BigDecimal("0");
+		for (int i = 0; i < 2998; i++) {
+			totalAmount = totalAmount.add(calculate(10, 450.000f));
+		}
+
+		System.out.println(totalAmount);
+		System.out.println(totalAmount.floatValue());
+		System.out.println(totalAmount.toString());
+		System.out.println(Float.valueOf(totalAmount.toString()));
+		System.out.println(totalAmount.doubleValue());
+	}
+
+	private static BigDecimal calculate(int renewDuration, Float servicePrice) {
+		// 续费时长
+		BigDecimal renewDurationBD = new BigDecimal(renewDuration);
+		// 服务费用
+		BigDecimal servicePriceBD = new BigDecimal(servicePrice.toString());
+		// 保留3位小数，四舍五入
+		// 续费模式
+		int renewType = 1;
+		// 区分年和月的付费方式，计算单位价格
+		if (renewType == 2) {
+			return servicePriceBD.multiply(renewDurationBD).setScale(3, RoundingMode.HALF_UP);
+		} else {
+			// 为避免计算后的小数位误差，用年服务费 X 年数
+			// 续费月份都是 12 的倍数
+			BigDecimal year = renewDurationBD.divide(new BigDecimal(12), 3, RoundingMode.HALF_UP);
+			return servicePriceBD.multiply(year).setScale(3, RoundingMode.HALF_UP);
+		}
+	}
+
+	public static void main2(String[] args) {
 		divide();
 
 		multiply();

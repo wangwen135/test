@@ -1,4 +1,5 @@
 /**
+
  * @Title: StringTest.java 
  * @Package com.ww.lang 
  * @Description: 
@@ -24,164 +25,170 @@ import java.util.List;
  *
  */
 public class StringTest {
+	
+	
 
-    public static void main(String[] args) {
-        
-        
-    }
+	public static void main14(String[] args) {
+		String s = String.join(" , ", "aa", "bb", "cc");
+		System.out.println(s);
 
-    public static void main13(String[] args) {
-        String url = "http://www.example.com/index.html#print";
-        int i = url.indexOf('h');
-        System.out.println(i);
-        if (i > 0) {
-            System.out.println(url.substring(0, i));
-        }
-    }
+	}
 
-    public static void main12(String[] args) {
-        String url = "http://de­­­e­­pdot3­­­5wvmeyd5.onion";
-        System.out.println(url);
+	public static void main13(String[] args) {
+		String url = "http://www.example.com/index.html#print";
+		int i = url.indexOf('h');
+		System.out.println(i);
+		if (i > 0) {
+			System.out.println(url.substring(0, i));
+		}
+	}
 
-        char c1 = 173;
+	public static void main12(String[] args) {
+		String url = "http://de­­­e­­pdot3­­­5wvmeyd5.onion";
+		System.out.println(url);
 
-        String sss = "­";
+		char c1 = 173;
 
-        String spc = String.valueOf(c1);
+		String sss = "­";
 
-        String url2 = url.replace(spc, "");
+		String spc = String.valueOf(c1);
 
-        System.out.println(url2);
+		String url2 = url.replace(spc, "");
 
-        char c = '­';
-        System.out.println(((int) c));
+		System.out.println(url2);
 
-    }
+		char c = '­';
+		System.out.println(((int) c));
 
-    public static void main11(String[] args) {
-        String domain = "baidu.com";
-        int code = domain.hashCode();
-        code = Math.abs(code);
-        System.out.println(code);
-        number2String(code);
-    }
+	}
 
-    public static void main10(String[] args) {
-        for (int i = 0; i < 678; i++) {
-            number2String(i);
-        }
-    }
+	public static void main11(String[] args) {
+		String domain = "baidu.com";
+		int code = domain.hashCode();
+		code = Math.abs(code);
+		System.out.println(code);
+		number2String(code);
+	}
 
-    public static void number2String(int hashCode1) {
+	public static void main10(String[] args) {
+		for (int i = 0; i < 678; i++) {
+			number2String(i);
+		}
+	}
 
-        int maxValue = 676;// 26*26
+	public static void number2String(int hashCode1) {
 
-        int remainder = hashCode1 % maxValue;
+		int maxValue = 676;// 26*26
 
-        System.out.print("余数：" + remainder + "        ");
+		int remainder = hashCode1 % maxValue;
 
-        char c1 = (char) (65 + remainder / 26);
-        char c2 = (char) (65 + remainder % 26);
-        System.out.println(c1 + "" + c2);
+		System.out.print("余数：" + remainder + "        ");
 
-    }
+		char c1 = (char) (65 + remainder / 26);
+		char c2 = (char) (65 + remainder % 26);
+		System.out.println(c1 + "" + c2);
 
-    public static void main9(String[] args) {
+	}
 
-        // String a = "aa";
-        // int hashCode1 = a.hashCode();
+	public static void main9(String[] args) {
 
-        int hashCode1 = 1;
+		// String a = "aa";
+		// int hashCode1 = a.hashCode();
 
-        System.out.println(hashCode1);
+		int hashCode1 = 1;
 
-        int maxValue = 676;
+		System.out.println(hashCode1);
 
-        int remainder = hashCode1 % maxValue;
+		int maxValue = 676;
 
-        System.out.println("余数：" + remainder);
+		int remainder = hashCode1 % maxValue;
 
-        if (remainder < 26) {
-            char c2 = (char) (65 + remainder);
-            System.out.println("0" + c2);
+		System.out.println("余数：" + remainder);
 
-        } else {
+		if (remainder < 26) {
+			char c2 = (char) (65 + remainder);
+			System.out.println("0" + c2);
 
-            char c1 = (char) (64 + remainder / 26);
-            char c2 = (char) (65 + remainder % 26);
-            System.out.println(c1 + "" + c2);
-        }
+		} else {
 
-    }
+			char c1 = (char) (64 + remainder / 26);
+			char c2 = (char) (65 + remainder % 26);
+			System.out.println(c1 + "" + c2);
+		}
 
-    public static void main8(String[] args) {
-        String name = "adf{asdfadf}.java.vm  xxxx|xxxx2|xxxx3|xxxx4";
+	}
 
-        System.out.println(name.substring(0, name.lastIndexOf(".")));
+	public static void main(String[] args) {
+		String name = "adf{asdfadf}.java.vm  xxxx|xxxx2  |xxxx3	|xxxx4";
 
-        System.out.println(name.split("[|]")[2]);
-    }
+		System.out.println(name.substring(0, name.lastIndexOf(".")));
 
-    public static void main7(String[] args) {
-        String ss = "adsfasdf=  asdfadf 是的";
+		System.out.println(name.split("[|]")[2]);
+		
+		System.out.println(Arrays.toString(name.split("\\s+")));
+		System.out.println(Arrays.toString(name.split("\\s+",2)));
+	}
 
-        String[] arrays = ss.split("[ ]*=[ ]*", 2);
+	public static void main7(String[] args) {
+		String ss = "adsfasdf=  asdfadf 是的";
 
-        System.out.println(arrays[0]);
-        System.out.println(arrays[1]);
-    }
+		String[] arrays = ss.split("[ ]*=[ ]*", 2);
 
-    public static void main6(String[] args) {
-        String[] s = new String[] { "", "asdf", "", "", null };
-        List<String> list = new ArrayList<String>();
-        for (String str : s) {
-            if (str == null || "".equals(str.trim())) {
-                continue;
-            }
-            list.add(str);
-        }
-        if (list.isEmpty()) {
-            System.out.println("null");
-        } else {
-            System.out.println(list);
-        }
+		System.out.println(arrays[0]);
+		System.out.println(arrays[1]);
+	}
 
-    }
+	public static void main6(String[] args) {
+		String[] s = new String[] { "", "asdf", "", "", null };
+		List<String> list = new ArrayList<String>();
+		for (String str : s) {
+			if (str == null || "".equals(str.trim())) {
+				continue;
+			}
+			list.add(str);
+		}
+		if (list.isEmpty()) {
+			System.out.println("null");
+		} else {
+			System.out.println(list);
+		}
 
-    public static void main5(String[] args) {
-        String ss = "用户关系\n信(息（这里只存一些";
-        System.out.println(ss.split("[（( \n]")[0]);
-    }
+	}
 
-    public static <T> List<T> getT(T... arg) {
-        return null;
-    }
+	public static void main5(String[] args) {
+		String ss = "用户关系\n信(息（这里只存一些";
+		System.out.println(ss.split("[（( \n]")[0]);
+	}
 
-    public static void main4(String[] args) {
-        tt("asdfasdf", "asdfasd");
-    }
+	public static <T> List<T> getT(T... arg) {
+		return null;
+	}
 
-    public static void tt(String... aa) {
-        System.out.println(Arrays.toString(aa));
-    }
+	public static void main4(String[] args) {
+		tt("asdfasdf", "asdfasd");
+	}
 
-    public static void main3(String[] args) throws UnsupportedEncodingException {
-        byte[] b = new byte[] { 116, 101, 115, 116, 67, 97, 99, 104, 101, 58, 84, 101, 115, 116, 83, 101, 114, 118, 105,
-                99, 101, 73, 109, 112, 108, 46, 100, 101, 108, 101, 116, 101, 66, 121, 73, 100, 40, 54, 41 };
-        // byte[] b = new byte[]{116, 101, 115, 116, 67, 97, 99, 104, 101, 58};
+	public static void tt(String... aa) {
+		System.out.println(Arrays.toString(aa));
+	}
 
-        Charset charset = Charset.forName("UTF8");
+	public static void main3(String[] args) throws UnsupportedEncodingException {
+		byte[] b = new byte[] { 116, 101, 115, 116, 67, 97, 99, 104, 101, 58, 84, 101, 115, 116, 83, 101, 114, 118, 105, 99, 101, 73, 109, 112, 108, 46, 100, 101, 108, 101, 116, 101, 66, 121, 73, 100,
+				40, 54, 41 };
+		// byte[] b = new byte[]{116, 101, 115, 116, 67, 97, 99, 104, 101, 58};
 
-        String s = new String(b, charset);
+		Charset charset = Charset.forName("UTF8");
 
-        System.out.println(s);
-    }
+		String s = new String(b, charset);
 
-    public static void main2(String[] args) {
-        String auth = "123123  asdf12kasdj12312jasdf";
-        String[] auths = auth.split("  ", 2);
-        for (String s : auths) {
-            System.out.println(s);
-        }
-    }
+		System.out.println(s);
+	}
+
+	public static void main2(String[] args) {
+		String auth = "123123  asdf12kasdj12312jasdf";
+		String[] auths = auth.split("  ", 2);
+		for (String s : auths) {
+			System.out.println(s);
+		}
+	}
 }
