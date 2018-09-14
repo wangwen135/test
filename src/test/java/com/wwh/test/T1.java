@@ -13,16 +13,16 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class T1 {
-    
-    private static Logger log = LoggerFactory.getLogger(T1.class);
 
-    public static void main(String[] args) {
-        new T1().test1();
-    }
-    
-    public void test1(){
-        //
-        log.debug("开始");
-        System.out.println("hello world");
-    }
+	private static Logger log = LoggerFactory.getLogger(T1.class);
+
+	public static void main(String[] args) {
+		new T1().test1();
+	}
+
+	public void test1() {
+		//
+		log.debug("开始");
+		System.out.println("hello world");
+	}
 }
