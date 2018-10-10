@@ -14,5 +14,7 @@ public class DoubleTest {
 		
 		Double d3 = Double.valueOf(String.valueOf(f2));
 		System.out.println(d3);
+		
+		System.out.println(Double.valueOf(f2.toString())); 
 	}
 }
