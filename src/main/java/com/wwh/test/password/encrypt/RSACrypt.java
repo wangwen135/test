@@ -33,7 +33,7 @@ public class RSACrypt {
 			e.printStackTrace();
 		}
 		// 初始化密钥对生成器，密钥大小为96-1024位
-		keyPairGen.initialize(1024, new SecureRandom());
+		keyPairGen.initialize(2048, new SecureRandom());
 		// 生成一个密钥对，保存在keyPair中
 		KeyPair keyPair = keyPairGen.generateKeyPair();
 		// 得到公钥字符串
