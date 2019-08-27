@@ -86,6 +86,7 @@ public class PopupDialog extends JDialog {
      * 先显示再延期隐藏
      */
     public void showDelayHide() {
+        // 重新定位
         this.setLocationRelativeTo(owner);
         setVisible(true);
         timer.start();
@@ -104,7 +105,7 @@ public class PopupDialog extends JDialog {
      */
     public static void main(String[] args) {
         try {
-            ImageIcon icon = new ImageIcon(ImageFrame2.class.getResource("/image/success.png"));
+            ImageIcon icon = new ImageIcon(ImageFrame.class.getResource("/image/success.png"));
             PopupDialog dialog = new PopupDialog(null, icon, 10000);
             dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             // dialog.setVisible(true);
