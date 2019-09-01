@@ -1,4 +1,4 @@
-package com.wwh.test.swing.monitor;
+package com.wwh.test.swing.monitor1;
 
 /*
  * @(#)MemoryMonitor.java	1.2 04/07/27

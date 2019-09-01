@@ -12,562 +12,606 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-public class MonitorPanel extends JPanel {
-
-	private static final long serialVersionUID = 1L;
-
-	private SimpleDateFormat dateF = new SimpleDateFormat("HH:mm");
-	private SimpleDateFormat dateF2 = new SimpleDateFormat("ss:SSS");
-
-	private List<Coordinate> clist;
-
-	public MonitorPanel() {
-
-	}
-
-	/**
-	 * Create the panel.
-	 */
-	public MonitorPanel(List<Coordinate> list) {
-		this.clist = list;
-	}
-
-	/**
-	 * Y轴上的最大值
-	 */
-	private long maxYValue;
-
-	/**
-	 * Y轴上的最小值
-	 */
-	private long minYValue;
-
-	/**
-	 * <pre>
-	 * 技术Y最大最小值
-	 * </pre>
-	 */
-	private void calcMaxAndMinYValue() {
-		// 先设置一次
-		maxYValue = Long.MIN_VALUE;
-		minYValue = Long.MAX_VALUE;
-		for (Coordinate coordinate : clist) {
-			if (coordinate.getyValue() > maxYValue) {
-				maxYValue = coordinate.getyValue();
-			}
-			if (coordinate.getyValue() < minYValue) {
-				minYValue = coordinate.getyValue();
-			}
-		}
-	}
-
-	/**
-	 * 最大Y坐标
-	 */
-	private long maxY;
-	/**
-	 * 最小Y坐标
-	 */
-	private long minY;
-
-	/**
-	 * Y轴间距
-	 */
-	private long yAxisInterval;
-
-	/**
-	 * Y轴线条数量
-	 */
-	private int yAxisLineCount;
-
-	/**
-	 * <pre>
-	 * 计算最大 、最小 Y轴值
-	 * </pre>
-	 */
-	private void calcYAxis() {
-		calcMaxAndMinYValue();
-
-		long dValue = maxYValue - minYValue;
-		if (dValue == 0) {
-			maxY = maxYValue;
-			minY = minYValue;
-			return;
-		}
-
-		long interval = dValue / 10;// 显示10条线
-		if (interval == 0)
-			interval = 1;
-		long log = (long) Math.log10(interval);// 计算位数
-		long _tmp = (long) Math.pow(10, log);
-		yAxisInterval = Math.round((double) interval / _tmp) * _tmp;
-
-		long maxc = maxYValue / yAxisInterval;
-		maxY = (maxc + 1) * yAxisInterval;
-		long minc = minYValue / yAxisInterval;
-		minY = minc * yAxisInterval;
-		if (minY > minYValue) {
-			minY = minY - yAxisInterval;
-		}
-
-		yAxisLineCount = (int) ((maxY - minY) / yAxisInterval);
-
-	}
-
-	/**
-	 * Y轴的文本宽度
-	 */
-	private int YTextWidth = 40;
-	/**
-	 * X轴的文本高度
-	 */
-	private int XTextHeight = 40;
-
-	/**
-	 * 标题的高度
-	 */
-	private int titleHeight = 20;
-
-	/**
-	 * 显示当前值的文本宽度
-	 */
-	private int currentTextWidth = 50;
-
-	/**
-	 * Y轴上一个与像素点的比例
-	 */
-	private double yRatio;
-
-	/**
-	 * 曲线图的高度
-	 */
-	private int graphHeight;
-	/**
-	 * 曲线图的宽度
-	 */
-	private int graphWidth;
-
-	/**
-	 * <pre>
-	 * 技术Y轴比例 
-	 * 既：值与显示区域的像素的比例
-	 * </pre>
-	 */
-	private void calcYRatio() {
-		calcYAxis();
-		// 计算曲线图的高度
-		graphHeight = imgHeight - titleHeight - XTextHeight;
-
-		if (graphHeight < 0) {
-			yRatio = 0;
-			return;
-		}
-		long yd = maxY - minY;// Y轴
-		if (yd < 0) {
-			yRatio = 0;
-			return;
-		}
-
-		yRatio = (double) graphHeight / (double) yd;// 得到比例
-
-	}
-
-	/**
-	 * X轴上的一个与像素点的比例
-	 */
-	private double xRatio;
-
-	/**
-	 * 最小的X轴的数值
-	 */
-	private long minXValue;
-
-	private long maxXValue;
-
-	/**
-	 * <pre>
-	 * 计算X轴的比例
-	 * 根据list中的元素个数
-	 * </pre>
-	 */
-	private void calcXRatio() {
-
-		// 计算曲线图的宽度
-		graphWidth = imgWidth - YTextWidth - currentTextWidth;
-		if (graphWidth < 0) {
-			xRatio = 0;
-			return;
-		}
-		minXValue = clist.get(0).getxValue();
-		// 这里使用list，如果list会改变需要注意
-		maxXValue = clist.get(clist.size() - 1).getxValue();
-		long xv = maxXValue - minXValue;
-
-		xRatio = (double) graphWidth / (double) xv;// 得到比例
-	}
-
-	/**
-	 * <pre>
-	 * 获取值对应X点坐标
-	 * </pre>
-	 * 
-	 * @param value
-	 * @return
-	 */
-	private int getXPoint(long value) {
-		long v = value - minXValue;
-		int x = (int) (v * xRatio);
-		return x + YTextWidth;
-	}
-
-	/**
-	 * <pre>
-	 * 获取值对应Y点坐标
-	 * </pre>
-	 * 
-	 * @param value
-	 * @return
-	 */
-	private int getYPoint(long value) {
-		long v = value - minY;
-		int y = (int) (v * yRatio);
-		return graphHeight - y + titleHeight;
-	}
-
-	/**
-	 * 图片
-	 */
-	private BufferedImage bimage;
-	private Graphics2D big;
-
-	private Color backgroundColor = new Color(0, 100, 0);
-	private Color lineColor = new Color(0, 0, 0);
-	private Color graphColor = new Color(250, 0, 0);
-	private Color fontColor = Color.BLACK;
-
-	private int imgWidth;
-	private int imgHeight;
-
-	private String title = "测试标题";
-
-	public void setGraphTitle(String title) {
-		this.title = title;
-	}
-
-	/**
-	 * <pre>
-	 * 将内容画在图片上
-	 * </pre>
-	 */
-	public void drawImage() {
-		if (clist == null || clist.isEmpty()) {
-			return;
-		}
-		int tw = getWidth();
-		int th = getHeight();
-		boolean rePaint = false;
-		if (tw != imgWidth || th != imgHeight) {
-			rePaint = true;
-			// 大小有变化，重建一张图片
-			imgWidth = tw;
-			imgHeight = th;
-			bimage = new BufferedImage(imgWidth, imgHeight,
-					BufferedImage.TYPE_INT_RGB);
-			big = bimage.createGraphics();
-		}
-		if (bimage == null) {
-			return;
-		}
-		// 内容有变化
-		rePaint = true;
-
-		if (!rePaint) {
-			return;
-		}
-
-		// 先计算title的高度
-
-		// 技术X 和 Y 的比例
-		calcYRatio();
-		calcXRatio();
-		System.out.println("Y轴的比例是：" + yRatio);
-		System.out.println("X轴的比例是：" + xRatio);
-
-		// 清空图片
-		big.setBackground(getBackground());
-		big.clearRect(0, 0, imgWidth, imgHeight);
-
-		// 获取字体
-
-		// int titleWidth = fm.stringWidth(title);
-		// 画标题
-		drawTitle();
-
-		// 画内容区域 背景
-		drawGraphBackgound();
-
-		// 画Y坐标
-		drawYAxis();
-
-		// Font font = big.getFont();
-		// FontMetrics fm = big.getFontMetrics(font);
-		// int ascent = fm.getAscent();
-		// int descent = fm.getDescent();
-		// int fHeight = fm.getHeight();
-
-		// 画X坐标
-		// drawXAxis();
-		drawXAxis2();
-
-		// 画曲线
-		big.setColor(graphColor);
-
-		int size = clist.size();
-		if (size < 2) {
-			return;
-		}
-		int[] xPoints = new int[size];
-		int[] yPoints = new int[size];
-
-		for (int i = 0; i < size; i++) {
-			xPoints[i] = getXPoint(clist.get(i).getxValue());
-			yPoints[i] = getYPoint(clist.get(i).getyValue());
-		}
-
-		big.drawPolyline(xPoints, yPoints, size);
-
-		// 画一个当前值
-		Font font = big.getFont();
-		FontMetrics fm = big.getFontMetrics(font);
-		int descent = fm.getDescent();
-		big.setColor(fontColor);
-		int _yPoint = yPoints[size - 1];
-		int _xPoint = YTextWidth + graphWidth + 1;
-		long currentValue = clist.get(clist.size() - 1).getyValue();
-		String valueOf = String.valueOf(currentValue);
-		big.drawString(valueOf, _xPoint, _yPoint - descent);
-		big.drawLine(_xPoint, _yPoint, _xPoint + fm.stringWidth(valueOf),
-				_yPoint);
-
-		// 面板 重绘
-		repaint();
-	}
-
-	/**
-	 * X轴上默认的线与线之间的像素
-	 */
-	private int xAxisLineInterval = 80;
-
-	/**
-	 * <pre>
-	 * 第二种方式画
-	 * </pre>
-	 */
-	private void drawXAxis2() {
-
-		Font font = big.getFont();
-		FontMetrics fm = big.getFontMetrics(font);
-		int ascent = fm.getAscent();
-		// int descent = fm.getDescent();
-		int fHeight = fm.getHeight();
-
-		// 画X坐标
-		// 在X轴能显示几条线
-		int xLineCount = graphWidth / xAxisLineInterval;
-		if (clist.size() <= xLineCount) {
-			for (int i = 0; i < clist.size() - 1; i++) {
-				long _xValue = clist.get(i).getxValue();
-				int _xPoint = getXPoint(_xValue);
-				Date date = new Date(_xValue);
-				String dateStr = dateF.format(date);
-
-				big.setColor(lineColor);
-				big.drawLine(_xPoint, titleHeight, _xPoint, titleHeight
-						+ graphHeight);
-				big.setColor(fontColor);
-				big.drawString(dateStr, _xPoint, titleHeight + graphHeight
-						+ ascent);
-
-				String dateStr2 = dateF2.format(date);
-				big.drawString(dateStr2, _xPoint, titleHeight + graphHeight
-						+ ascent + fHeight);
-			}
-		} else {
-			double per = (double) graphWidth / xAxisLineInterval;
-
-			long xMinV = clist.get(0).getxValue();
-			long xMaxV = clist.get(clist.size() - 1).getxValue();
-
-			long xInterval = (long) ((xMaxV - xMinV) / per);
-
-			for (int i = 0; i <= xLineCount; i++) {
-				long _xValue = xMinV + (xInterval * i);
-				int _xPoint = YTextWidth + (xAxisLineInterval * i);
-				Date date = new Date(_xValue);
-				String dateStr = dateF.format(date);
-
-				big.setColor(lineColor);
-				big.drawLine(_xPoint, titleHeight, _xPoint, titleHeight
-						+ graphHeight);
-				big.setColor(fontColor);
-				big.drawString(dateStr, _xPoint, titleHeight + graphHeight
-						+ ascent);
-
-				String dateStr2 = dateF2.format(date);
-				big.drawString(dateStr2, _xPoint, titleHeight + graphHeight
-						+ ascent + fHeight);
-			}
-		}
-
-	}
-
-	/**
-	 * <pre>
-	 * 画X坐标轴
-	 * </pre>
-	 */
-	@SuppressWarnings("unused")
-	private void drawXAxis() {
-		Font font = big.getFont();
-		FontMetrics fm = big.getFontMetrics(font);
-		int ascent = fm.getAscent();
-		// int descent = fm.getDescent();
-		int fHeight = fm.getHeight();
-
-		// 画X坐标
-		// 每隔间隔像素
-		int xLineCount = graphWidth / xAxisLineInterval;
-		if (clist.size() <= xLineCount) {
-			for (int i = 0; i < clist.size() - 1; i++) {
-				long _xValue = clist.get(i).getxValue();
-				int _xPoint = getXPoint(_xValue);
-				Date date = new Date(_xValue);
-				String dateStr = dateF.format(date);
-				String dateStr2 = dateF2.format(date);
-
-				big.setColor(lineColor);
-				big.drawLine(_xPoint, titleHeight, _xPoint, titleHeight
-						+ graphHeight);
-				big.setColor(fontColor);
-				big.drawString(dateStr, _xPoint, titleHeight + graphHeight
-						+ ascent);
-				big.drawString(dateStr2, _xPoint, titleHeight + graphHeight
-						+ ascent + fHeight);
-			}
-		} else {
-			long xMinV = clist.get(0).getxValue();
-			long xMaxV = clist.get(clist.size() - 1).getxValue();
-			long xInterval = (xMaxV - xMinV) / xLineCount;
-
-			for (int i = 0; i < xLineCount; i++) {
-				long _xValue = xMinV + (xInterval * i);
-				int _xPoint = getXPoint(_xValue);
-				Date date = new Date(_xValue);
-				String dateStr = dateF.format(date);
-				String dateStr2 = dateF2.format(date);
-
-				big.setColor(lineColor);
-				big.drawLine(_xPoint, titleHeight, _xPoint, titleHeight
-						+ graphHeight);
-				big.setColor(fontColor);
-				big.drawString(dateStr, _xPoint, titleHeight + graphHeight
-						+ ascent);
-				big.drawString(dateStr2, _xPoint, titleHeight + graphHeight
-						+ ascent + fHeight);
-			}
-		}
-	}
-
-	/**
-	 * <pre>
-	 * 画Y轴
-	 * </pre>
-	 */
-	private void drawYAxis() {
-		Font font = big.getFont();
-		FontMetrics fm = big.getFontMetrics(font);
-		int descent = fm.getDescent();
-		// 先设置字体
-		big.setFont(font);
-		// 画最大值
-		// String maxYStr = String.valueOf(maxY);
-		// big.drawString(maxYStr, YTextWidth - fm.stringWidth(maxYStr) - 1,
-		// titleHeight + descent);
-		// // 画最小值
-		// String minYStr = String.valueOf(minY);
-		// big.drawString(minYStr, YTextWidth - fm.stringWidth(minYStr) - 1,
-		// titleHeight + graphHeight);
-
-		// 每隔一定的像素画一条线
-
-		for (int i = 0; i <= yAxisLineCount; i++) {
-			long _l = minY + (yAxisInterval * i);
-			String _yStr = String.valueOf(_l);
-			int _yPosition = getYPoint(_l);
-			// 数字
-			big.setColor(fontColor);
-			big.drawString(_yStr, YTextWidth - fm.stringWidth(_yStr) - 1,
-					_yPosition + descent);
-
-			// 画横线
-			big.setColor(lineColor);
-			big.drawLine(YTextWidth, _yPosition, YTextWidth + graphWidth,
-					_yPosition);
-		}
-	}
-
-	/**
-	 * <pre>
-	 * 画背景
-	 * </pre>
-	 */
-	private void drawGraphBackgound() {
-		big.setColor(backgroundColor);
-		// big.fill3DRect(YTextWidth, titleHeight, imgWidth - YTextWidth
-		// - cutlineWidth, imgHeight - titleHeight - XTextHeight, false);
-
-		// 填充指定的矩形。该矩形左边缘和右边缘分别位于 x 和 x + width - 1。上边缘和下边缘分别位于 y 和 y + height -
-		// 1。得到的矩形覆盖 width 像素宽乘以 height 像素高的区域。使用图形上下文的当前颜色填充该矩形。
-		big.fillRect(YTextWidth, titleHeight, graphWidth, graphHeight);
-
-		big.setColor(lineColor);
-		// 绘制指定矩形的边框。矩形的左边缘和右边缘分别位于 x 和 x + width。上边缘和下边缘分别位于 y 和 y +
-		// height。使用图形上下文的当前颜色绘制该矩形。
-		big.drawRect(YTextWidth, titleHeight, graphWidth, graphHeight);
-
-	}
-
-	/**
-	 * <pre>
-	 * 画标题
-	 * </pre>
-	 */
-	private void drawTitle() {
-		if (title == null || title.isEmpty() || titleHeight < 1) {
-			return;
-		}
-		big.setColor(fontColor);
-		// Font font = big.getFont();
-		Font font = new Font("宋体", Font.BOLD, 14);
-		big.setFont(font);
-		// ascent = (int) fm.getAscent();
-		// descent = (int) fm.getDescent();
-
-		FontMetrics fm = big.getFontMetrics(font);
-		int titleWidth = fm.stringWidth(title);
-
-		int titleX = (graphWidth - titleWidth) / 2 + YTextWidth;
-		big.drawString(title, titleX, fm.getAscent());
-	}
-
-	@Override
-	public void paint(Graphics g) {
-
-		super.paint(g);
-		// 用图片
-		if (bimage != null)
-			g.drawImage(bimage, 0, 0, this);
-
-	}
+/**
+ * <pre>
+ * 有XY轴的曲线图监控面板
+ * 
+ * <pre>
+ * 
+ * @author 313921
+ * @date 2015-01-28 22:11:04
+ */
+public class MonitorPanel extends JPanel implements MonitorPanelModelListener {
+
+    /**
+     * 最合适的Y轴线条高度间距
+     */
+    private static final int bastYAxisLineHeightInterval = 26;
+
+    /**
+     * X轴上默认的线与线之间的像素
+     */
+    public static final int DEFAULT_X_AXIS_LINE_INTERVAL = 70;
+    /**
+     * 默认的当前值文本宽度
+     */
+    private static final int defaultCurrentTextWidth = 50;
+
+    /**
+     * 最少的Y轴线条数量
+     */
+    private static final int minYAxisLineCount = 3;
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 图片
+     */
+    private BufferedImage bufferImage;
+
+    /**
+     * 显示当前值的文本宽度
+     */
+    private int currentTextWidth = 50;
+
+    private MonitorPanelModel dataModel;
+
+    private SimpleDateFormat dateF = new SimpleDateFormat("HH:mm");
+
+    /**
+     * 是否显示最后一个值
+     */
+    private boolean displayLastValue = true;
+
+    private boolean drawEmptyGraph = true;
+
+    private Color fontColor = Color.BLACK;
+
+    /**
+     * 曲线区域的背景颜色
+     */
+    private Color graphBackgroundColor = new Color(0, 100, 0);
+
+    private Graphics2D graphics;
+
+    /**
+     * 曲线的颜色
+     */
+    private Color graphLineColor = new Color(250, 0, 0);
+
+    private String graphTitle = "监控面板";
+
+    private Color gridLineColor = new Color(0, 0, 0);
+    /**
+     * 图片的高度
+     */
+    private int imgHeight;
+
+    /**
+     * 图片的宽度，整个组件就是一个画上去的图片
+     */
+    private int imgWidth;
+
+    /**
+     * 标题字体
+     */
+    private Font titleFont = new Font("宋体", Font.BOLD, 14);
+
+    /**
+     * 标题颜色
+     */
+    private Color titleFontColor = Color.BLACK;
+
+    /**
+     * 标题的高度
+     */
+    private int titleHeight = 20;
+
+    /**
+     * X轴上的线与线之间的像素
+     */
+    private int xAxisLineInterval = DEFAULT_X_AXIS_LINE_INTERVAL;
+
+    /**
+     * X轴上的一个与像素点的比例
+     */
+    private double xRatio;
+
+    /**
+     * X轴的文本高度
+     */
+    private int XTextHeight = 20;
+
+    /**
+     * Y轴上一个与像素点的比例
+     */
+    private double yRatio;
+
+    /**
+     * Y轴的文本宽度
+     */
+    private int YTextWidth = 40;
+
+    public MonitorPanel() {
+        this(null);
+    }
+
+    public MonitorPanel(MonitorPanelModel model) {
+        if (model == null) {
+            model = new MonitorPanelModel();
+        }
+        setModel(model);
+        updateUI();
+    }
+
+    /**
+     * <pre>
+     * 计算X轴的比例
+     * 根据list中的元素个数
+     * </pre>
+     */
+    private void calcXRatio() {
+        Long maxXCoords = dataModel.getMaxXCoords();
+        if (maxXCoords == null) {
+            return;
+        }
+        Long minXCoords = dataModel.getMinXCoords();
+        if (minXCoords == null) {
+            return;
+        }
+        // 曲线图的宽度
+        int graphWidth = getGraphWidth();
+        if (graphWidth <= 0) {
+            xRatio = 0;
+            return;
+        }
+        long xv = maxXCoords - minXCoords;
+        // 得到比例
+        xRatio = (double) graphWidth / (double) xv;
+    }
+
+    /**
+     * <pre>
+     * 计算Y轴比例 
+     * 既：值与显示区域的像素的比例
+     * </pre>
+     */
+    private void calcYRatio() {
+        Long maxYCoords = dataModel.getMaxYCoords();
+        if (maxYCoords == null) {
+            return;
+        }
+        Long minYCoords = dataModel.getMinYCoords();
+        if (minYCoords == null) {
+            return;
+        }
+        // 计算曲线图的高度
+        int graphHeight = getGraphHeight();
+
+        if (graphHeight <= 0) {
+            yRatio = 0;
+            return;
+        }
+        long yd = maxYCoords - minYCoords;// Y轴
+        if (yd <= 0) {
+            yRatio = 0;
+            return;
+        }
+        yRatio = (double) graphHeight / (double) yd;// 得到比例
+    }
+
+    private void clearBufferImage() {
+        graphics.setBackground(getBackground());
+        graphics.clearRect(0, 0, imgWidth, imgHeight);
+    }
+
+    private void drawDefaultXAxis() {
+        int graphWidth = getGraphWidth();
+        int graphHeight = getGraphHeight();
+        // 每隔一定的像素画一条竖线
+        graphics.setColor(gridLineColor);
+
+        for (int i = YTextWidth + xAxisLineInterval; i < YTextWidth + graphWidth; i += xAxisLineInterval) {
+            graphics.drawLine(i, titleHeight, i, titleHeight + graphHeight);
+        }
+    }
+
+    private void drawDefaultYAxis() {
+        // 每隔一定的像素画一条线
+        int graphWidth = getGraphWidth();
+        int graphHeight = getGraphHeight();
+
+        // 画横线
+        graphics.setColor(gridLineColor);
+        for (int i = graphHeight; i - bastYAxisLineHeightInterval > 0; i -= bastYAxisLineHeightInterval) {
+            int yPosition = i - bastYAxisLineHeightInterval + titleHeight;
+            graphics.drawLine(YTextWidth, yPosition, YTextWidth + graphWidth, yPosition);
+        }
+    }
+
+    /**
+     * 绘制曲线
+     */
+    private void drawGraph() {
+        graphics.setColor(graphLineColor);
+        List<Coordinate> coordinatelist = dataModel.getCoordinatelist();
+        int size = coordinatelist.size();
+        if (size < 2) {
+            return;
+        }
+        int[] xPoints = new int[size];
+        int[] yPoints = new int[size];
+
+        for (int i = 0; i < size; i++) {
+            xPoints[i] = getXPoint(coordinatelist.get(i).getxValue());
+            yPoints[i] = getYPoint(coordinatelist.get(i).getyValue());
+        }
+
+        graphics.drawPolyline(xPoints, yPoints, size);
+
+        // 画一个当前值
+        Font font = graphics.getFont();
+        FontMetrics fm = graphics.getFontMetrics(font);
+        int descent = fm.getDescent();
+        graphics.setColor(fontColor);
+        int _yPoint = yPoints[size - 1];
+        int graphWidth = getGraphWidth();
+        int _xPoint = YTextWidth + graphWidth + 1;
+        long currentValue = coordinatelist.get(coordinatelist.size() - 1).getyValue();
+        String valueOf = String.valueOf(currentValue);
+        graphics.drawString(valueOf, _xPoint, _yPoint - descent);
+        graphics.drawLine(_xPoint, _yPoint, _xPoint + fm.stringWidth(valueOf), _yPoint);
+    }
+
+    /**
+     * <pre>
+     * 画背景
+     * </pre>
+     */
+    private void drawGraphBackgound() {
+        int graphWidth = getGraphWidth();
+        int graphHeight = getGraphHeight();
+
+        graphics.setColor(graphBackgroundColor);
+        // big.fill3DRect(YTextWidth, titleHeight, imgWidth - YTextWidth
+        // - cutlineWidth, imgHeight - titleHeight - XTextHeight, false);
+
+        // 填充指定的矩形。该矩形左边缘和右边缘分别位于 x 和 x + width - 1。上边缘和下边缘分别位于 y 和 y + height -
+        // 1。得到的矩形覆盖 width 像素宽乘以 height 像素高的区域。使用图形上下文的当前颜色填充该矩形。
+        graphics.fillRect(YTextWidth, titleHeight, graphWidth, graphHeight);
+
+        graphics.setColor(gridLineColor);
+        // 绘制指定矩形的边框。矩形的左边缘和右边缘分别位于 x 和 x + width。上边缘和下边缘分别位于 y 和 y +
+        // height。使用图形上下文的当前颜色绘制该矩形。
+        graphics.drawRect(YTextWidth, titleHeight, graphWidth, graphHeight);
+
+    }
+
+    /**
+     * <pre>
+     * 将内容画在图片上
+     * </pre>
+     */
+    private void drawImage() {
+        int tw = getWidth();
+        int th = getHeight();
+        if (tw != imgWidth || th != imgHeight) {
+            // 大小有变化，重建一张图片
+            imgWidth = tw;
+            imgHeight = th;
+            bufferImage = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_RGB);
+            graphics = bufferImage.createGraphics();
+        }
+        if (bufferImage == null) {
+            return;
+        }
+
+        // 先清空图片
+        clearBufferImage();
+
+        // 画标题
+        drawTitle();
+
+        // 画内容区域 背景
+        drawGraphBackgound();
+
+        // 获取XY轴上的线
+        long[] xLine = dataModel.getXAxisLines(getBestXAxisLineCount());
+        long[] yLine = dataModel.getYAxisLines(getBestYAxisLineCount());
+
+        // 计算X 和 Y 的比例
+        calcYRatio();
+        calcXRatio();
+
+        // 画X坐标
+        if (xLine != null) {
+            drawXAxis(xLine);
+        } else {
+            if (drawEmptyGraph) {
+                // 画缺省的X坐标
+                drawDefaultXAxis();
+            }
+        }
+
+        // 画Y坐标
+        if (yLine != null) {
+            drawYAxis(yLine);
+        } else if (drawEmptyGraph) {
+            // 画缺省的Y坐标
+            drawDefaultYAxis();
+        }
+
+        // 画曲线
+        drawGraph();
+    }
+
+    /**
+     * <pre>
+     * 画标题
+     * </pre>
+     */
+    private void drawTitle() {
+        if (graphTitle == null || graphTitle.isEmpty() || titleHeight < 1) {
+            return;
+        }
+        graphics.setColor(titleFontColor);
+        graphics.setFont(titleFont);
+        FontMetrics fm = graphics.getFontMetrics(titleFont);
+        int titleWidth = fm.stringWidth(graphTitle);
+
+        int graphWidth = getGraphWidth();
+        int titleX = (graphWidth - titleWidth) / 2 + YTextWidth;
+        graphics.drawString(graphTitle, titleX, fm.getAscent());
+    }
+
+    /**
+     * <pre>
+     * 画X轴
+     * </pre>
+     */
+    private void drawXAxis(long[] xLine) {
+        if (xLine == null) {
+            return;
+        }
+
+        Font font = graphics.getFont();
+        FontMetrics fm = graphics.getFontMetrics(font);
+        int ascent = fm.getAscent();
+        // int descent = fm.getDescent();
+        // int fHeight = fm.getHeight();
+
+        int graphHeight = getGraphHeight();
+
+        // 画X坐标
+        for (long l : xLine) {
+            int xPoint = getXPoint(l);
+
+            graphics.setColor(gridLineColor);
+            graphics.drawLine(xPoint, titleHeight, xPoint, titleHeight + graphHeight);
+
+            Date date = new Date(l);
+            String dateStr = dateF.format(date);
+
+            graphics.setColor(fontColor);
+            graphics.drawString(dateStr, xPoint, titleHeight + graphHeight + ascent);
+
+        }
+    }
+
+    /**
+     * <pre>
+     * 画Y轴
+     * </pre>
+     */
+    private void drawYAxis(long[] yLine) {
+        if (yLine == null) {
+            return;
+        }
+
+        Font font = graphics.getFont();
+        FontMetrics fm = graphics.getFontMetrics(font);
+        int descent = fm.getDescent();
+        // 先设置字体
+        graphics.setFont(font);
+
+        // 画最大值
+        // String maxYStr = String.valueOf(maxY);
+        // big.drawString(maxYStr, YTextWidth - fm.stringWidth(maxYStr) - 1,
+        // titleHeight + descent);
+        // // 画最小值
+        // String minYStr = String.valueOf(minY);
+        // big.drawString(minYStr, YTextWidth - fm.stringWidth(minYStr) - 1,
+        // titleHeight + graphHeight);
+
+        int graphWidth = getGraphWidth();
+
+        for (long l : yLine) {
+            String yNumberStr = String.valueOf(l);
+            int yPosition = getYPoint(l);
+            if (YTextWidth > 0) {
+                // 数字
+                graphics.setColor(fontColor);
+                graphics.drawString(yNumberStr, YTextWidth - fm.stringWidth(yNumberStr) - 1, yPosition + descent);
+            }
+
+            // 画横线
+            graphics.setColor(gridLineColor);
+            graphics.drawLine(YTextWidth, yPosition, YTextWidth + graphWidth, yPosition);
+
+        }
+    }
+
+    private int getBestXAxisLineCount() {
+        // 在X轴能显示几条线
+        int lineCount = getGraphWidth() / xAxisLineInterval;
+        lineCount = lineCount > 1 ? lineCount : 1;
+        return lineCount;
+    }
+
+    /**
+     * 根据坐标系高度计算最佳的横线条数
+     * 
+     * @return
+     */
+    private int getBestYAxisLineCount() {
+        int lineCount = getGraphHeight() / bastYAxisLineHeightInterval;
+        lineCount = lineCount > minYAxisLineCount ? lineCount : minYAxisLineCount;
+        return lineCount;
+    }
+
+    public int getCurrentTextWidth() {
+        return currentTextWidth;
+    }
+
+    public boolean getDisplayLastValue() {
+        return displayLastValue;
+    }
+
+    public Color getFontColor() {
+        return fontColor;
+    }
+
+    public Color getGraphBackgroundColor() {
+        return graphBackgroundColor;
+    }
+
+    /**
+     * 获取曲线图区域的高度
+     * 
+     * @return
+     */
+    public int getGraphHeight() {
+        if (bufferImage == null) {
+            return 0;
+        }
+        return bufferImage.getHeight() - titleHeight - XTextHeight;
+    }
+
+    public Color getGraphLineColor() {
+        return graphLineColor;
+    }
+
+    public String getGraphTitle() {
+        return graphTitle;
+    }
+
+    /**
+     * 获取曲线图区域的宽度
+     * 
+     * @return
+     */
+    public int getGraphWidth() {
+        if (bufferImage == null) {
+            return 0;
+        }
+        return bufferImage.getWidth() - YTextWidth - currentTextWidth;
+    }
+
+    public Color getGridLineColor() {
+        return gridLineColor;
+    }
+
+    /**
+     * <pre>
+     * 获取值对应X点坐标
+     * </pre>
+     * 
+     * @param value
+     * @return
+     */
+    private int getXPoint(long value) {
+        Long minXCoords = dataModel.getMinXCoords();
+        long v = value - minXCoords;
+        int x = (int) (v * xRatio);
+        return x + YTextWidth;
+    }
+
+    /**
+     * <pre>
+     * 获取值对应Y点坐标
+     * </pre>
+     * 
+     * @param value
+     * @return
+     */
+    private int getYPoint(long value) {
+        Long minYCoords = dataModel.getMinYCoords();
+        long v = value - minYCoords;
+        int y = (int) (v * yRatio);
+        int graphHeight = getGraphHeight();
+        return graphHeight - y + titleHeight;
+    }
+
+    public boolean isDrawEmptyGraph() {
+        return drawEmptyGraph;
+    }
+
+    @Override
+    public void monitorPanelChanged(MonitorPanelModelEvent e) {
+        repaint();
+    }
+
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+
+        drawImage();
+        // 用图片
+        if (bufferImage != null) {
+            g.drawImage(bufferImage, 0, 0, this);
+        }
+    }
+
+    public void setCurrentTextWidth(int currentTextWidth) {
+        this.currentTextWidth = currentTextWidth;
+    }
+
+    public void setDisplayLastValue(boolean display) {
+        displayLastValue = display;
+        if (display) {
+            currentTextWidth = defaultCurrentTextWidth;
+        } else {
+            currentTextWidth = 0;
+        }
+    }
+
+    public void setDrawEmptyGraph(boolean drawEmptyGraph) {
+        this.drawEmptyGraph = drawEmptyGraph;
+    }
+
+    public void setFontColor(Color fontColor) {
+        this.fontColor = fontColor;
+    }
+
+    public void setGraphBackgroundColor(Color graphBackgroundColor) {
+        this.graphBackgroundColor = graphBackgroundColor;
+    }
+
+    public void setGraphLineColor(Color graphLineColor) {
+        this.graphLineColor = graphLineColor;
+    }
+
+    public void setGraphTitle(String title) {
+        this.graphTitle = title;
+    }
+
+    public void setGridLineColor(Color gridLineColor) {
+        this.gridLineColor = gridLineColor;
+    }
+
+    public void setModel(MonitorPanelModel model) {
+        if (model == null) {
+            throw new IllegalArgumentException("不能为空");
+        }
+        if (this.dataModel != model) {
+            MonitorPanelModel old = this.dataModel;
+            if (old != null) {
+                old.removeMonitorPanelModelListener(this);
+            }
+            this.dataModel = model;
+            model.addMonitorPanelModelListener(this);
+            repaint();
+        }
+    }
 
 }

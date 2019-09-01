@@ -1,11 +1,7 @@
-package com.wwh.test.swing.monitor;
+package com.wwh.test.swing.monitor1;
 
 /**
- * <pre>
  * xy坐标
- * X轴 为 具体的值
- * Y轴 为 时间
- * </pre>
  * 
  * @author wwh
  */
@@ -33,16 +29,6 @@ public class Coordinate {
 
     public void setyValue(long yValue) {
         this.yValue = yValue;
-    }
-
-    public static void main(String[] args) {
-        double d;
-        long l;
-        for (int i = 0; i < 720; i++) {
-            d = Math.sin(Math.toRadians(i));
-            l = (long) (d * 100);
-            System.out.println(l);
-        }
     }
 
 }
