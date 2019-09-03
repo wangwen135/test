@@ -35,14 +35,4 @@ public class Coordinate {
         this.yValue = yValue;
     }
 
-    public static void main(String[] args) {
-        double d;
-        long l;
-        for (int i = 0; i < 720; i++) {
-            d = Math.sin(Math.toRadians(i));
-            l = (long) (d * 100);
-            System.out.println(l);
-        }
-    }
-
 }

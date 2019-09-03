@@ -147,7 +147,6 @@ public class MonitorPanel extends JPanel implements MonitorPanelModelListener {
     /**
      * <pre>
      * 计算X轴的比例
-     * 根据list中的元素个数
      * </pre>
      */
     private void calcXRatio() {
