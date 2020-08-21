@@ -8,10 +8,10 @@ package com.wwh.test.memory;
  */
 public class VolatileTest {
 
-    // boolean isShutDown = false;
+    boolean isShutDown = false;
 
     // 加上volatile就能结束doWork 线程
-    volatile boolean isShutDown = false;
+    // volatile boolean isShutDown = false;
 
     void shutdown() {
         isShutDown = true;
@@ -20,7 +20,21 @@ public class VolatileTest {
 
     void doWork() {
         System.out.println("start work...");
+
         while (!isShutDown) {
+            // 加上sleep之后 会使cpu上下文切换
+            // 再次运行时会重新去主内存中加载数据到cpu的缓存中
+
+            // 这个也会导致重新加载主内存
+            // 里面有synchronized，速度慢
+            System.out.println("aaa");
+
+            // Thread.yield();
+            // try {
+            // Thread.sleep(1);
+            // } catch (InterruptedException e) {
+            // e.printStackTrace();
+            // }
 
         }
         System.out.println("doWork end");
