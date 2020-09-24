@@ -3,6 +3,7 @@ package com.wwh.test.lang;
 import java.nio.ByteOrder;
 import sun.misc.Unsafe;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 
 /**
  * <pre>
@@ -35,128 +36,223 @@ import java.lang.reflect.Field;
  */
 public class DoubleTest {
 
-	public static Unsafe getUnsafe() throws Exception {
-		Field f = Unsafe.class.getDeclaredField("theUnsafe");
-		f.setAccessible(true);
-		Unsafe unsafe = (Unsafe) f.get(null);
-		return unsafe;
-	}
+    public static Unsafe getUnsafe() throws Exception {
+        Field f = Unsafe.class.getDeclaredField("theUnsafe");
+        f.setAccessible(true);
+        Unsafe unsafe = (Unsafe) f.get(null);
+        return unsafe;
+    }
 
-	public static void main(String[] args) throws Exception {
+    public static void main1(String[] args) throws Exception {
 
-		try {
-			Unsafe UNSAFE = getUnsafe();
+        try {
+            Unsafe UNSAFE = getUnsafe();
 
-			long a = UNSAFE.allocateMemory(8);
+            long a = UNSAFE.allocateMemory(8);
 
-			UNSAFE.putLong(a, 0x0102030405060708L);
-			// 存放此long类型数据，实际存放占8个字节，01,02,03,04,05,06,07,08
-			byte b = UNSAFE.getByte(a);
-			// 通过getByte方法获取刚才存放的long，取第一个字节
-			// 如果是大端，long类型顺序存放—》01,02,03,04,05,06,07,08 ，取第一位便是0x01
-			// 如果是小端，long类型顺序存放—》08,07,06,05,04,03,02,01 ，取第一位便是0x08
-			ByteOrder byteOrder;
-			switch (b) {
-			case 0x01:
-				byteOrder = ByteOrder.BIG_ENDIAN;
-				break;
-			case 0x08:
-				byteOrder = ByteOrder.LITTLE_ENDIAN;
-				break;
-			default:
-				byteOrder = null;
-			}
+            UNSAFE.putLong(a, 0x0102030405060708L);
+            // 存放此long类型数据，实际存放占8个字节，01,02,03,04,05,06,07,08
+            byte b = UNSAFE.getByte(a);
+            // 通过getByte方法获取刚才存放的long，取第一个字节
+            // 如果是大端，long类型顺序存放—》01,02,03,04,05,06,07,08 ，取第一位便是0x01
+            // 如果是小端，long类型顺序存放—》08,07,06,05,04,03,02,01 ，取第一位便是0x08
+            ByteOrder byteOrder;
+            switch (b) {
+                case 0x01:
+                    byteOrder = ByteOrder.BIG_ENDIAN;
+                    break;
+                case 0x08:
+                    byteOrder = ByteOrder.LITTLE_ENDIAN;
+                    break;
+                default:
+                    byteOrder = null;
+            }
 
-			System.out.println(byteOrder);
+            System.out.println(byteOrder);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	public static void main4(String[] args) {
-		double dx = 1.099999999999999999999999999999d;
-		System.out.println(dx);// 1.1
+    public static void main4(String[] args) {
+        double dx = 1.099999999999999999999999999999d;
+        System.out.println(dx);// 1.1
 
-		double dy = 1.1000000000000000000000000000001d;
-		System.out.println(dy);// 1.1
+        double dy = 1.1000000000000000000000000000001d;
+        System.out.println(dy);// 1.1
 
-		double d = 1.1f;
-		System.out.println(d);
+        double d = 1.1f;
+        System.out.println(d);
 
-		System.out.println(Double.toHexString(1.1d));
-		// 0x1.199999999999ap0
+        System.out.println(Double.toHexString(1.1d));
+        // 0x1.199999999999ap0
 
-		System.out.println(Long.toBinaryString(Double.doubleToLongBits(-0.1)));
-		// 1011111110111001100110011001100110011001100110011001100110011010
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(-0.1)));
+        // 1011111110111001100110011001100110011001100110011001100110011010
 
-		System.out.println(Long.toBinaryString(Double.doubleToLongBits(-3.5)));
-		// 1100000000001100000000000000000000000000000000000000000000000000
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(-3.5)));
+        // 1100000000001100000000000000000000000000000000000000000000000000
 
-		System.out.println(Long.toBinaryString(Double.doubleToLongBits(1.1)));
-		// 11111111110001100110011001100110011001100110011001100110011010
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(1.1)));
+        // 11111111110001100110011001100110011001100110011001100110011010
 
-		System.out.println(Long.toBinaryString(Double.doubleToLongBits(-1.1)));
-		// 1011111111110001100110011001100110011001100110011001100110011010
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(-1.1)));
+        // 1011111111110001100110011001100110011001100110011001100110011010
 
-		System.out.println(Long.toBinaryString(Double.doubleToLongBits(-2.1)));
-		// 1100000000000000110011001100110011001100110011001100110011001101
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(-2.1)));
+        // 1100000000000000110011001100110011001100110011001100110011001101
 
-		System.out.println(Integer.toBinaryString(Float.floatToIntBits(1.1f)));
-		// 00111111100011001100110011001101
+        System.out.println(Integer.toBinaryString(Float.floatToIntBits(1.1f)));
+        // 00111111100011001100110011001101
 
-		System.out.println(Integer.toBinaryString(Float.floatToIntBits(-1.1f)));
-		// 10111111100011001100110011001101
+        System.out.println(Integer.toBinaryString(Float.floatToIntBits(-1.1f)));
+        // 10111111100011001100110011001101
 
-		System.out.println(Integer.toBinaryString(Float.floatToIntBits(-2.1f)));
-		// 11000000000001100110011001100110
+        System.out.println(Integer.toBinaryString(Float.floatToIntBits(-2.1f)));
+        // 11000000000001100110011001100110
 
-		// 第 63 位（掩码 0x8000000000000000L 选定的位）表示浮点数的符号。
-		// 第 62-52 位（掩码 0x7ff0000000000000L 选定的位）表示指数。
-		// 第 51-0 位（掩码 0x000fffffffffffffL 选定的位）表示浮点数的有效数字（有时也称为尾数）。
+        // 第 63 位（掩码 0x8000000000000000L 选定的位）表示浮点数的符号。
+        // 第 62-52 位（掩码 0x7ff0000000000000L 选定的位）表示指数。
+        // 第 51-0 位（掩码 0x000fffffffffffffL 选定的位）表示浮点数的有效数字（有时也称为尾数）。
 
-	}
+    }
 
-	public static void main3(String[] args) {
-		System.out.println(Double.toHexString(1d));
-		System.out.println(Double.toHexString(-1d));
-		System.out.println(Double.toHexString(2d));
-		System.out.println(Double.toHexString(-2d));
-		System.out.println(Double.toHexString(3d));
-		System.out.println(Double.toHexString(-3d));
+    public static void main6(String[] args) {
+        long doubleToLongBits = Double.doubleToLongBits(-0.2);
+        System.out.println(doubleToLongBits);
 
-		System.out.println("-----------------------------");
+        // 以二进制无符号整数形式返回 long
+        System.out.println(Long.toBinaryString(doubleToLongBits));
 
-		System.out.println(Double.doubleToLongBits(1));
+        System.out.println(Long.toString(doubleToLongBits, 2));
 
-		System.out.println("-----------------------------");
+        long l = Long.parseLong("-100000000110110011001100110011001100110011001100110011001100110", 2);
+        System.out.println(l);
+        // double dd = Double.longBitsToDouble();
+    }
 
-		System.out.println(Double.toHexString(0.03d));
-	}
+    public static void main3(String[] args) {
+        System.out.println(Double.toHexString(1d));
+        System.out.println(Double.toHexString(-1d));
+        System.out.println(Double.toHexString(2d));
+        System.out.println(Double.toHexString(-2d));
+        System.out.println(Double.toHexString(3d));
+        System.out.println(Double.toHexString(-3d));
 
-	public static void main2(String[] args) {
-		double a = 0.03;
-		double b = 0.01;
-		System.out.println(a - b); // 0.019999999999999997
+        System.out.println("-----------------------------");
 
-		double x = 10.2;
-		double y = 10.03;
-		System.out.println(x + y); // 20.229999999999997
+        System.out.println(Double.doubleToLongBits(1));
 
-		System.out.println("-----------------------------");
+        System.out.println("-----------------------------");
 
-		float f = 111.23f;
-		System.out.println(f);
-		double d = f;
-		System.out.println(d);
+        System.out.println(Double.toHexString(0.03d));
+    }
 
-		Float f2 = 111.23f;
-		Double d2 = Double.valueOf(f2);
-		System.out.println(d2);
+    public static void main5(String[] args) {
+        System.out.println(-2.1);
+        System.out.println(new BigDecimal(-2.1));
 
-		Double d3 = Double.valueOf(String.valueOf(f2));
-		System.out.println(d3);
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(-2.1)));
 
-		System.out.println(Double.valueOf(f2.toString()));
-	}
+        System.out.println("减法测试：");
+        double a = 0.03;
+        double b = 0.01;
+        double c = a - b;
+        System.out.println(a + " - " + b + " = " + c);
+        // 0.019999999999999997
+        System.out.println("######################################");
+        System.out.println(new BigDecimal(a));
+        System.out.println(new BigDecimal(b));
+        System.out.println(new BigDecimal(c));
+        System.out.println("######################################");
+
+        System.out.println("");
+
+        System.out.println("加法测试：");
+        double x = 10.2;
+        double y = 10.03;
+        double z = x + y;
+        // 20.229999999999997
+        System.out.println(x + " + " + y + " = " + z);
+        System.out.println("######################################");
+        System.out.println(new BigDecimal(x));
+        System.out.println(new BigDecimal(y));
+        System.out.println(new BigDecimal(z));
+        System.out.println("######################################");
+
+        System.out.println("位数不够的情况：");
+        float f = 2.33445566f;
+        System.out.println(f);
+        // 2.3344557
+
+    }
+
+    public static void main(String[] args) {
+        // 有效位数不够
+        float f = 1.23456789f;
+        System.out.println(f);
+        // 1.2345679
+
+        System.out.println("=====================");
+        float f1 = 10000f;
+        System.out.println(f1);
+        // 10000.0
+        float f2 = 1.123456f;
+        System.out.println(f2);
+        // 1.123456
+
+        // 相加之后有效位数不够
+        float f3 = f1 + f2;
+        System.out.println(f3);
+        // 10001.123
+
+    }
+
+    public static void main7(String[] args) {
+        double d1 = 0.1;
+        double d2 = 0.2;
+        double d3 = d1 + d2;
+        System.out.println(d3);
+        System.out.println("######################################");
+        System.out.println(new BigDecimal(d1));
+        System.out.println(new BigDecimal(d2));
+        System.out.println(new BigDecimal(d3));
+
+        System.out.println("######################################");
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(d1)));
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(d2)));
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(d3)));
+    }
+
+    public static void main11(String[] args) {
+
+        // 1.09999999999999994
+        // 1.0999999999999999
+        double dx = 10.09999999999998765d;
+        System.out.println(dx);
+
+        double dy = 1.100000000000001234d;
+        System.out.println(dy);
+
+        System.out.println(dx + dy);
+
+        System.out.println("-----------------------------");
+
+        float f = 111.23f;
+        System.out.println(f);
+        double d = f;
+        System.out.println(d);
+
+        System.out.println("-----------------------------");
+
+        Float f2 = 111.23f;
+        Double d2 = Double.valueOf(f2);
+        System.out.println(d2);
+
+        Double d3 = Double.valueOf(String.valueOf(f2));
+        System.out.println(d3);
+
+        System.out.println(Double.valueOf(f2.toString()));
+    }
 }
