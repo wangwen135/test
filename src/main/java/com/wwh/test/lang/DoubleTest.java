@@ -1,6 +1,10 @@
 package com.wwh.test.lang;
 
 import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -41,6 +45,128 @@ public class DoubleTest {
         f.setAccessible(true);
         Unsafe unsafe = (Unsafe) f.get(null);
         return unsafe;
+    }
+
+    public static void mainx(String[] args) throws Exception {
+        // setDouble();
+        bit2Double("0011111111110001100110011001100110011001100110011001100110011010");
+    }
+
+    public static void main(String[] args) {
+        double d = 1801439850948198345000d;
+        System.out.println(d);
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(d)));
+
+    }
+
+    public static void mainy(String[] args) {
+        // 4607632778762754458
+        // String s =
+        // "0011111111110001100110011001100110011001100110011001100110011010";
+
+        String s = "0100000100001111111111111111111111111111111111111111111111111111";
+        System.out.println("二进制字符串 = " + s);
+        long l = Long.parseLong(s, 2);
+        System.out.println("转成Long = " + l);
+        double d = Double.longBitsToDouble(l);
+        System.out.println("再将Long转成Double = " + d);
+    }
+
+    /**
+     * bit字符串转Double
+     * 
+     * @param bitStr 64位的01字符串
+     * @throws Exception
+     */
+    public static void bit2Double(String bitStr) throws Exception {
+        String[] array = splitString(bitStr, 8);
+        System.out.println(Arrays.toString(array));
+
+        Unsafe unsafe = getUnsafe();
+        long address = unsafe.allocateMemory(8L);
+
+        for (int i = 0; i < array.length; i++) {
+            String bits = array[i];
+            byte bt = (byte) Integer.parseInt(bits, 2);
+            // 因为实际上是小端模式存储的，所以这里从后面开始写入
+            unsafe.putByte(address + (7 - i), (byte) bt);
+        }
+
+        long lVal = unsafe.getLong(address);
+        System.out.println("对应的long值是：" + lVal);
+        System.out.println(Long.toBinaryString(lVal));
+
+        double dVal = unsafe.getDouble(address);
+        System.out.println("转成Double 类型是：" + dVal);
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(dVal)));
+
+    }
+
+    public static String[] splitString(String source, int length) {
+        String[] array = new String[length];
+        for (int i = 0; i < length; i++) {
+            array[i] = source.substring(i * length, (i + 1) * length);
+        }
+        return array;
+    }
+
+    public static void setDouble() throws Exception {
+        Unsafe unsafe = getUnsafe();
+
+        System.out.println("分配一个8byte的内存 64bit");
+        long address = unsafe.allocateMemory(8L);
+        System.out.println("address1 = " + address);
+
+        System.out.println("64个bit全部填充为1");
+        unsafe.setMemory(address, 8, (byte) 0xff);
+        long lVal = unsafe.getLong(address);
+        System.out.println(Long.toBinaryString(lVal));
+        System.out.println("后面8个bit填充为1011 1011");
+        unsafe.putByte(address, (byte) 0xaa);
+        lVal = unsafe.getLong(address);
+        System.out.println(Long.toBinaryString(lVal));
+
+        System.out.println("移动8位 填充为1011 1011");
+        unsafe.putByte(address + 1, (byte) 0xbb);
+        lVal = unsafe.getLong(address);
+        System.out.println(Long.toBinaryString(lVal));
+
+        System.out.println("再移动8位 填充为0000 0000");
+        unsafe.putByte(address + 2, (byte) 0x00);
+        lVal = unsafe.getLong(address);
+        System.out.println(Long.toBinaryString(lVal));
+
+        System.out.println("再移动8位 填充为0000 0000");
+        unsafe.putByte(address + 3, (byte) 0x00);
+        lVal = unsafe.getLong(address);
+        System.out.println(Long.toBinaryString(lVal));
+
+        System.out.println("再移动8位 填充为1101 1101");
+        unsafe.putByte(address + 4, (byte) 0xdd);
+        lVal = unsafe.getLong(address);
+        System.out.println(Long.toBinaryString(lVal));
+
+        System.out.println("再移动8位 填充为1110 1110");
+        unsafe.putByte(address + 5, (byte) 0xee);
+        lVal = unsafe.getLong(address);
+        System.out.println(Long.toBinaryString(lVal));
+
+        System.out.println("再移动8位 填充为1111 0001");
+        unsafe.putByte(address + 6, (byte) 0b11110001);
+        lVal = unsafe.getLong(address);
+        System.out.println(Long.toBinaryString(lVal));
+
+        System.out.println("再移动8位 填充为1011 1111");
+        unsafe.putByte(address + 7, (byte) 0b10111111);
+        lVal = unsafe.getLong(address);
+        System.out.println(Long.toBinaryString(lVal));
+
+        System.out.println("================================================================");
+        double dVal = unsafe.getDouble(address);
+        System.out.println("转成Double 类型是：" + dVal);
+        System.out.println(Long.toBinaryString(Double.doubleToLongBits(dVal)));
+        System.out.println();
+
     }
 
     public static void main1(String[] args) throws Exception {
@@ -188,7 +314,7 @@ public class DoubleTest {
 
     }
 
-    public static void main(String[] args) {
+    public static void main8(String[] args) {
         // 有效位数不够
         float f = 1.23456789f;
         System.out.println(f);
